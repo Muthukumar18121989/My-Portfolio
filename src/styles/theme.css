@@ -1,0 +1,138 @@
+/*
+ * Design token system — implements PHASE-6-DESIGN-SYSTEM.md and its
+ * Phase 9.6 amendment. Values match what's already bound in the Figma
+ * "Design OS / Color" variable collection (Dark/Light modes), so the
+ * design file and the codebase reference the same source of truth.
+ *
+ * Do not add tokens here that aren't specified in PHASE-6 — this file
+ * is a translation of the frozen design system into Tailwind v4's
+ * @theme syntax, not a place to make new design decisions.
+ *
+ * Light-mode color values were revised in Phase 10.1.5, after a computed
+ * WCAG contrast audit (real relative-luminance math, not eyeballed) found
+ * the original light-mode accent/good/info/warning/locked/danger values —
+ * tuned for the dark ground — failed 4.5:1 text contrast, and the focus
+ * ring failed 3:1 non-text contrast entirely. See
+ * PHASE-10.1.5-COMPONENT-STABILIZATION.md for the full pass/fail table.
+ * The dark-mode `locked`/`danger` value was also nudged slightly (still the
+ * same rust hue) to clear 4.5:1 against `bg-surface`, which the original
+ * value missed by a narrow margin (4.30:1).
+ *
+ * The light-mode values below are a second correction pass: the first
+ * round (computed against `--color-bg` alone) still failed `--color-bg-surface`
+ * (the slightly darker of the two light backgrounds) for accent/locked/
+ * danger/good/info/warning. These final values are verified against BOTH
+ * light backgrounds simultaneously at >=4.5:1.
+ */
+
+@theme {
+  /* ---- raw palette (referenced by the semantic tokens below) ---- */
+  --color-ink: #0b0f12;
+  --color-ink-surface: #131a1e;
+  --color-ink-border: #232c31;
+  --color-paper: #f1f3f0;
+  --color-paper-surface: #e7eae5;
+  --color-paper-border: #d4d9d1;
+  --color-teal: #1fa98a;
+  --color-teal-bright: #4ee2c0;
+  --color-rust: #be6c41;
+  --color-rust-light: #9b5835;
+
+  /* ---- semantic tokens: dark mode is the default ground ---- */
+  --color-bg: var(--color-ink);
+  --color-bg-surface: var(--color-ink-surface);
+  --color-border: var(--color-ink-border);
+  --color-fg: #f1f3f0;
+  --color-fg-muted: #8a938e;
+  --color-accent: var(--color-teal-bright);
+  --color-accent-fg: #06110d;
+  --color-secondary: #3d5a54;
+  --color-locked: var(--color-rust);
+  --color-danger: var(--color-rust);
+  --color-good: #3fa65c;
+  --color-info: #4a8fe7;
+  --color-warning: #d9a441;
+  --color-overlay: rgb(0 0 0 / 50%);
+
+  /* ---- type roles (font families loaded via next/font/google in layout.tsx) ---- */
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  /* ---- motion: custom easings not in Tailwind's defaults ---- */
+  --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- stacking scale (added Phase 9.6 — drawer + modal now coexist) ---- */
+  --z-dropdown: 20;
+  --z-drawer: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+
+  /* ---- disabled-state opacity (semantic, not a color) ---- */
+  --opacity-disabled: 0.5;
+}
+
+/*
+ * --color-focus aliases --color-accent, but a plain @theme reference resolves
+ * at definition time, before the light-mode override below applies — Tailwind
+ * v4's docs are explicit that referencing a token whose value changes per
+ * mode requires @theme inline instead, or focus rings would silently ignore
+ * theme switching. Verified via Context7 during Phase 9.6, and again here
+ * during implementation.
+ */
+@theme inline {
+  --color-focus: var(--color-accent);
+}
+
+/* Light mode overrides — every dark-mode token above gets a light equivalent. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: var(--color-paper);
+    --color-bg-surface: var(--color-paper-surface);
+    --color-border: var(--color-paper-border);
+    --color-fg: #10201a;
+    --color-fg-muted: #5b6b62;
+    --color-accent: #167661;
+    --color-accent-fg: #f1f3f0;
+    --color-secondary: #5a7c74;
+    --color-locked: var(--color-rust-light);
+    --color-danger: var(--color-rust-light);
+    --color-good: #2d7742;
+    --color-info: #376aab;
+    --color-warning: #846428;
+  }
+}
+
+/* Explicit theme toggle overrides (stamped on <html> by the app's theme switcher) */
+:root[data-theme="dark"] {
+  --color-bg: var(--color-ink);
+  --color-bg-surface: var(--color-ink-surface);
+  --color-border: var(--color-ink-border);
+  --color-fg: #f1f3f0;
+  --color-fg-muted: #8a938e;
+  --color-accent: var(--color-teal-bright);
+  --color-accent-fg: #06110d;
+  --color-secondary: #3d5a54;
+  --color-locked: var(--color-rust);
+  --color-danger: var(--color-rust);
+  --color-good: #3fa65c;
+  --color-info: #4a8fe7;
+  --color-warning: #d9a441;
+}
+
+:root[data-theme="light"] {
+  --color-bg: var(--color-paper);
+  --color-bg-surface: var(--color-paper-surface);
+  --color-border: var(--color-paper-border);
+  --color-fg: #10201a;
+  --color-fg-muted: #5b6b62;
+  --color-accent: #167661;
+  --color-accent-fg: #f1f3f0;
+  --color-secondary: #5a7c74;
+  --color-locked: var(--color-rust-light);
+  --color-danger: var(--color-rust-light);
+  --color-good: #2d7742;
+  --color-info: #376aab;
+  --color-warning: #846428;
+}

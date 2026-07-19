@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "../styles/theme.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+body {
+  font-family: var(--font-body);
+}
+
+/*
+ * shadcn/ui components reference their own generic variable names
+ * (--background, --primary, --card, etc). Rather than accept shadcn's
+ * default gray/oklch palette (which would silently override the real
+ * design tokens in styles/theme.css), every shadcn variable is aliased
+ * directly to our own semantic tokens here — so components built in
+ * later phases automatically render in the approved design system,
+ * not shadcn's placeholder colors. No new colors are introduced.
+ */
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-fg);
+  --color-card: var(--color-bg-surface);
+  --color-card-foreground: var(--color-fg);
+  --color-popover: var(--color-bg-surface);
+  --color-popover-foreground: var(--color-fg);
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-accent-fg);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-fg);
+  --color-muted: var(--color-bg-surface);
+  --color-muted-foreground: var(--color-fg-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-fg);
+  --color-destructive: var(--color-danger);
+  --color-border: var(--color-border);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-focus);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+
+  /* Radius scale — Phase 6 specifies --radius-sm/md/lg; shadcn expects a
+     wider scale for some components, derived from the same --radius-md
+     base rather than a separate, undocumented value. */
+  --radius-md: 6px;
+  --radius-sm: 3px;
+  --radius-lg: 10px;
+  --radius-xl: calc(var(--radius-md) * 1.4);
+  --radius-2xl: calc(var(--radius-md) * 1.8);
+  --radius-3xl: calc(var(--radius-md) * 2.2);
+  --radius-4xl: calc(var(--radius-md) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

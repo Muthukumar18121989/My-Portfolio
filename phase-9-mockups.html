@@ -1,0 +1,2177 @@
+<!-- Phase 9 — Flagship UI mockups: Home, Project Detail, Recruiter Mode -->
+<!-- Design plan:
+     Color — ink #0B0F12 (dark ground, blue-black not pure black), ink-surface #131A1E,
+             paper #F1F3F0 (cool pale sage-white, not cream), paper-surface #E7EAE5,
+             graphite #6B7570 (teal-biased neutral for secondary text),
+             teal #1FA98A (primary accent — precision-instrument teal, unclaimed by the Phase 3 benchmark set),
+             teal-bright #4EE2C0 (dark-mode hover/highlight), rust #B8693F (locked/gated state only, never the accent)
+     Type — display: system grotesk stack, weight 800, tight tracking, hero/H1 only.
+            body: system humanist stack, comfortable measure.
+            mono: system mono stack, uppercase + letter-spaced, for eyebrows/metadata/figure captions.
+            (Self-hosted licensed webfonts get finalized in Phase 14 implementation — this review
+             mockup approximates character through scale/weight/tracking on system stacks to stay
+             lightweight, given this session's context budget.)
+     Layout — "instrument panel": hairline tick-mark ruler as a quiet recurring texture, real
+              product artifacts presented in a bordered viewport frame captioned like a technical
+              figure, asymmetric hero, uniform project-card grid with mono metadata rows.
+-->
+<style>
+  :root {
+    --ink: #0b0f12;
+    --ink-surface: #131a1e;
+    --ink-border: #232c31;
+    --paper: #f1f3f0;
+    --paper-surface: #e7eae5;
+    --paper-border: #d4d9d1;
+    --graphite: #6b7570;
+    --teal: #1fa98a;
+    --teal-bright: #4ee2c0;
+    --rust: #b8693f;
+
+    --bg: var(--ink);
+    --bg-surface: var(--ink-surface);
+    --border: var(--ink-border);
+    --fg: #f1f3f0;
+    --fg-muted: #8a938e;
+    --accent: var(--teal-bright);
+    --accent-fg: #06110d;
+    --locked: var(--rust);
+
+    --font-display:
+      ui-sans-serif, "Segoe UI Variable Display", "Segoe UI", -apple-system, "SF Pro Display",
+      system-ui, sans-serif;
+    --font-body: ui-sans-serif, "Segoe UI", -apple-system, "SF Pro Text", system-ui, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+
+    --radius-sm: 3px;
+    --radius-md: 6px;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: var(--paper);
+      --bg-surface: var(--paper-surface);
+      --border: var(--paper-border);
+      --fg: #10201a;
+      --fg-muted: #5b6b62;
+      --accent: var(--teal);
+      --accent-fg: #f1f3f0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: var(--ink);
+    --bg-surface: var(--ink-surface);
+    --border: var(--ink-border);
+    --fg: #f1f3f0;
+    --fg-muted: #8a938e;
+    --accent: var(--teal-bright);
+    --accent-fg: #06110d;
+  }
+  :root[data-theme="light"] {
+    --bg: var(--paper);
+    --bg-surface: var(--paper-surface);
+    --border: var(--paper-border);
+    --fg: #10201a;
+    --fg-muted: #5b6b62;
+    --accent: var(--teal);
+    --accent-fg: #f1f3f0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+  }
+  .mockup-root {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    color: var(--fg-muted);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  a {
+    color: inherit;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* ---------- reviewer chrome (meta, not part of the site) ---------- */
+  .review-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 20px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: wrap;
+  }
+  .review-bar .mono {
+    color: var(--fg-muted);
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 3px;
+  }
+  .tabs button {
+    background: transparent;
+    border: none;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    transition:
+      background 150ms,
+      color 150ms;
+  }
+  .tabs button[aria-selected="true"] {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .theme-toggle {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .screen {
+    display: none;
+  }
+  .screen[data-active="true"] {
+    display: block;
+    animation: rise 400ms var(--ease, ease) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen[data-active="true"] {
+      animation: none;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ---------- ruler texture ---------- */
+  .ruler {
+    height: 14px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border) 0 1px,
+      transparent 1px 40px
+    );
+    background-position: 20px 0;
+    opacity: 0.6;
+  }
+
+  /* ---------- site chrome ---------- */
+  .site-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px clamp(20px, 5vw, 64px);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .wordmark strong {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 2vw, 28px);
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--fg-muted);
+    transition: color 150ms;
+  }
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    color: var(--fg);
+  }
+  .nav-utility {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition:
+      transform 150ms,
+      border-color 150ms,
+      background 150ms;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-ghost {
+    border-color: var(--border);
+    color: var(--fg);
+  }
+  .btn-pill {
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.78rem;
+    padding: 8px 16px;
+  }
+  .btn-pill:hover {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+  section {
+    padding: clamp(48px, 8vw, 96px) 0;
+  }
+  section + section {
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+  }
+  @media (max-width: 860px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+    line-height: 1.05;
+    margin: 14px 0 18px;
+  }
+  .hero p.lede {
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+    max-width: 46ch;
+    margin: 0 0 28px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .viewport-frame {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    padding: 14px;
+    position: relative;
+  }
+  .viewport-frame .corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid var(--fg-muted);
+    opacity: 0.5;
+  }
+  .viewport-frame .corner.tl {
+    top: 6px;
+    left: 6px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .viewport-frame .corner.br {
+    bottom: 6px;
+    right: 6px;
+    border-left: none;
+    border-top: none;
+  }
+  .artifact-canvas {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .figure-caption {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ---------- abstract product artifact (stand-in for a real screenshot) ---------- */
+  .artifact {
+    background: var(--ink);
+    padding: 16px;
+  }
+  .artifact .bar {
+    height: 6px;
+    background: var(--ink-border);
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .artifact .bar.w60 {
+    width: 60%;
+  }
+  .artifact .bar.w40 {
+    width: 40%;
+  }
+  .artifact .bar.w80 {
+    width: 80%;
+  }
+  .artifact .row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .artifact .panel {
+    flex: 1;
+    background: var(--ink-surface);
+    border: 1px solid var(--ink-border);
+    border-radius: 4px;
+    padding: 10px;
+    height: 108px;
+  }
+  .artifact svg {
+    display: block;
+    width: 100%;
+    height: 60px;
+  }
+
+  /* ---------- section headers ---------- */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  }
+
+  /* ---------- project grid ---------- */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .grid-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-surface);
+    transition:
+      transform 150ms,
+      border-color 150ms;
+    text-decoration: none;
+    color: var(--fg);
+    display: block;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+  .card-cover {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-body {
+    padding: 16px;
+  }
+  .card-body h3 {
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+  .card-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .card-desc {
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* ---------- stats ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 700px) {
+    .stats {
+      grid-template-columns: 1fr;
+    }
+  }
+  .stat strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+  }
+
+  .placeholder-note {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    color: var(--fg-muted);
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+
+  /* ---------- semantic status colors (separate from the teal accent) ---------- */
+  :root {
+    --good: #3fa65c;
+    --info: #4a8fe7;
+  }
+
+  /* ---------- work index: filters, locked cards, empty state ---------- */
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .filter-tabs button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition:
+      background 150ms,
+      color 150ms;
+  }
+  .filter-tabs button[data-active="true"] {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--locked);
+    border: 1px solid var(--locked);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+  .empty-state {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    padding: 32px;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---------- resume timeline ---------- */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid var(--border);
+    margin-left: 6px;
+  }
+  .timeline-item {
+    position: relative;
+    padding: 0 0 32px 28px;
+  }
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  .timeline-item .role {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .timeline-item .company {
+    color: var(--accent);
+    font-size: 0.92rem;
+    margin: 2px 0 6px;
+  }
+  .timeline-item ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+  .timeline-item ul li {
+    margin-bottom: 4px;
+  }
+
+  /* ---------- contact form fields ---------- */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .field label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+  }
+  .field input,
+  .field textarea {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 12px;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+  .field .error-text {
+    color: var(--locked);
+    font-size: 0.78rem;
+  }
+  .field.has-error input {
+    border-color: var(--locked);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* ---------- admin dashboard ---------- */
+  .admin-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 600px;
+  }
+  @media (max-width: 760px) {
+    .admin-shell {
+      grid-template-columns: 1fr;
+    }
+  }
+  .admin-sidebar {
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .admin-sidebar a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+  .admin-sidebar a.active {
+    background: var(--bg-surface);
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .admin-main {
+    padding: 28px clamp(16px, 3vw, 32px);
+  }
+  .admin-panel-view {
+    display: none;
+  }
+  .admin-panel-view[data-active="true"] {
+    display: block;
+  }
+  .admin-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 760px) {
+    .admin-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .admin-stat {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    background: var(--bg-surface);
+  }
+  .admin-stat strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .admin-table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .pill-public {
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 15%, transparent);
+  }
+  .pill-recruiter {
+    color: var(--info);
+    background: color-mix(in srgb, var(--info) 15%, transparent);
+  }
+  .pill-private {
+    color: var(--locked);
+    background: color-mix(in srgb, var(--locked) 15%, transparent);
+  }
+  .pill-draft {
+    color: var(--fg-muted);
+    background: color-mix(in srgb, var(--fg-muted) 15%, transparent);
+  }
+  .admin-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .admin-actions button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+  .admin-actions button:hover {
+    border-color: var(--accent);
+    color: var(--fg);
+  }
+  .admin-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    background: var(--bg-surface);
+    margin-bottom: 20px;
+  }
+  .admin-panel h3 {
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+  }
+  .request-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .request-row:last-child {
+    border-bottom: none;
+  }
+  .request-row span.mono {
+    color: var(--fg-muted);
+  }
+
+  footer.site-footer {
+    padding: 40px clamp(20px, 5vw, 64px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  footer.site-footer .cols {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  footer.site-footer a {
+    display: block;
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    margin-bottom: 8px;
+  }
+  footer.site-footer a:hover {
+    color: var(--fg);
+  }
+
+  /* ---------- project detail ---------- */
+  .pd-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin: 18px 0 0;
+  }
+  .pd-meta div strong {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+  }
+  .decision-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .decision-list li {
+    padding-left: 18px;
+    border-left: 2px solid var(--accent);
+    font-size: 0.95rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--fg-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+  .back-link:hover {
+    color: var(--fg);
+  }
+
+  /* ---------- recruiter mode ---------- */
+  .recruiter-shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(48px, 8vw, 88px) 20px;
+  }
+  .recruiter-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  .recruiter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 32px 0 40px;
+  }
+  .recruiter-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    align-items: center;
+  }
+  .recruiter-card h3 {
+    font-size: 0.98rem;
+    margin-bottom: 4px;
+  }
+  .recruiter-card p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+  }
+  .recruiter-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+</style>
+
+<div class="mockup-root">
+  <div class="review-bar">
+    <span class="mono">Phase 9 review — flagship templates</span>
+    <div class="tabs" role="tablist" aria-label="Select mockup">
+      <button type="button" data-tab="home" aria-selected="true">Home</button>
+      <button type="button" data-tab="project" aria-selected="false">Project Detail</button>
+      <button type="button" data-tab="recruiter" aria-selected="false">Recruiter Mode</button>
+      <button type="button" data-tab="work" aria-selected="false">Work Index</button>
+      <button type="button" data-tab="about" aria-selected="false">About</button>
+      <button type="button" data-tab="writing" aria-selected="false">Writing</button>
+      <button type="button" data-tab="resume" aria-selected="false">Resume</button>
+      <button type="button" data-tab="contact" aria-selected="false">Contact</button>
+      <button type="button" data-tab="admin" aria-selected="false">Admin Dashboard</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle">Theme: Auto</button>
+  </div>
+
+  <!-- ================= HOME ================= -->
+  <div class="screen" data-screen="home" data-active="true">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong>
+        <span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility">
+        <span class="mono" aria-hidden="true">⌕</span>
+        <a href="#" class="btn btn-pill">Recruiter Mode →</a>
+      </div>
+    </nav>
+
+    <div class="wrap">
+      <section class="hero">
+        <div>
+          <span class="mono">10+ years · enterprise UX</span>
+          <h1>Design systems for AI platforms and financial infrastructure.</h1>
+          <p class="lede">
+            Lead UX Designer with 10+ years leading design for enterprise platforms at TCS and
+            McKinsey Global Services — from digital-twin simulation tools to core banking
+            infrastructure.
+          </p>
+          <div class="hero-ctas">
+            <a href="#" class="btn btn-primary">View case studies</a>
+            <a href="#" class="btn btn-ghost">Download résumé</a>
+          </div>
+        </div>
+        <div class="viewport-frame">
+          <span class="corner tl" aria-hidden="true"></span
+          ><span class="corner br" aria-hidden="true"></span>
+          <div class="artifact-canvas">
+            <div class="artifact">
+              <div class="bar w40"></div>
+              <div class="row">
+                <div class="panel">
+                  <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+                    <polyline
+                      points="0,50 30,35 60,42 90,20 120,28 150,10 180,18 200,6"
+                      fill="none"
+                      stroke="var(--accent)"
+                      stroke-width="2"
+                    />
+                  </svg>
+                  <div class="bar w60" style="margin-top: 10px"></div>
+                  <div class="bar w40"></div>
+                </div>
+                <div class="panel">
+                  <div class="bar w80"></div>
+                  <div class="bar w60"></div>
+                  <div class="bar w40" style="background: var(--accent)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="figure-caption">
+            <span class="mono">Fig. 01 — TwinX, decision comparison view</span>
+            <span class="mono">Placeholder art</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <div>
+            <span class="mono">Selected work</span>
+            <h2>Three systems, three different constraints.</h2>
+          </div>
+        </div>
+        <div class="grid-3">
+          <a class="card" href="#" onclick="return false;">
+            <div
+              class="card-cover"
+              style="background: linear-gradient(135deg, var(--ink-surface), #1a2a26)"
+            >
+              <svg width="64" height="36" viewBox="0 0 64 36">
+                <polyline
+                  points="0,30 12,20 24,24 36,10 48,16 64,4"
+                  fill="none"
+                  stroke="var(--accent)"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <div class="card-body">
+              <h3>TCS TwinX</h3>
+              <div class="card-meta">
+                <span class="mono">Lead UX</span><span class="mono">AI Platform</span>
+              </div>
+              <p class="card-desc">
+                Interface for simulating enterprise decisions before committing to them.
+              </p>
+            </div>
+          </a>
+          <a class="card" href="#" onclick="return false;">
+            <div
+              class="card-cover"
+              style="background: linear-gradient(135deg, var(--ink-surface), #1a2430)"
+            >
+              <svg width="64" height="36" viewBox="0 0 64 36">
+                <rect x="4" y="18" width="8" height="14" fill="var(--accent)" />
+                <rect x="18" y="10" width="8" height="22" fill="var(--fg-muted)" />
+                <rect x="32" y="22" width="8" height="10" fill="var(--fg-muted)" />
+                <rect x="46" y="4" width="8" height="28" fill="var(--accent)" />
+              </svg>
+            </div>
+            <div class="card-body">
+              <h3>Euroclear Bank</h3>
+              <div class="card-meta">
+                <span class="mono">Senior UX</span><span class="mono">Fin. Infra</span>
+              </div>
+              <p class="card-desc">
+                Modernizing a legacy settlement platform without breaking what banks depend on.
+              </p>
+            </div>
+          </a>
+          <a class="card" href="#" onclick="return false;">
+            <div
+              class="card-cover"
+              style="background: linear-gradient(135deg, var(--ink-surface), #241a30)"
+            >
+              <svg width="64" height="36" viewBox="0 0 64 36">
+                <circle
+                  cx="16"
+                  cy="18"
+                  r="10"
+                  fill="none"
+                  stroke="var(--accent)"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="40"
+                  cy="18"
+                  r="14"
+                  fill="none"
+                  stroke="var(--fg-muted)"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <div class="card-body">
+              <h3>Virtual Personal Stylist</h3>
+              <div class="card-meta">
+                <span class="mono">UX Design</span><span class="mono">Mobile · AI</span>
+              </div>
+              <p class="card-desc">
+                Personalized styling recommendations from a closet you photograph once.
+              </p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <span class="mono">Scope</span>
+        <div class="stats" style="margin-top: 16px">
+          <div class="stat">
+            <strong>10+</strong
+            ><span class="mono" style="text-transform: none; letter-spacing: 0"
+              >Years in UX &amp; design leadership</span
+            >
+          </div>
+          <div class="stat">
+            <strong>15+</strong
+            ><span class="mono" style="text-transform: none; letter-spacing: 0"
+              >Designers mentored</span
+            >
+          </div>
+          <div class="stat">
+            <strong>3</strong
+            ><span class="mono" style="text-transform: none; letter-spacing: 0"
+              >Industries — banking, AI, retail</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <span class="mono">Writing</span>
+        <p class="placeholder-note" style="margin-top: 16px">
+          Articles roll out post-launch per the Phase 4 content cadence — this slot shows an honest
+          empty state rather than filler copy until the first piece is ready.
+        </p>
+      </section>
+
+      <section>
+        <span class="mono">What people say</span>
+        <p class="placeholder-note" style="margin-top: 16px">
+          Testimonial slot — real, attributed quotes only, sourced during Phase 11 content work
+          (Phase 2 flagged the current site's unverifiable testimonial as a credibility risk to
+          avoid repeating).
+        </p>
+      </section>
+    </div>
+
+    <footer class="site-footer">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="cols">
+        <div><a href="#">Work</a><a href="#">About</a><a href="#">Writing</a></div>
+        <div><a href="#">Resume</a><a href="#">Testimonials</a><a href="#">Awards</a></div>
+        <div><a href="#">Contact</a><a href="#">LinkedIn</a></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================= PROJECT DETAIL ================= -->
+  <div class="screen" data-screen="project">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px">
+      <a href="#" class="back-link" onclick="return false;">← Back to Work</a>
+      <span class="mono">Case study · AI platform</span>
+      <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.8rem); margin: 12px 0 0">
+        TCS TwinX — Digital Twin Decision Platform
+      </h1>
+      <div class="pd-meta">
+        <div><span class="mono">Role</span><strong>Lead UX Designer</strong></div>
+        <div><span class="mono">Team</span><strong>8 designers</strong></div>
+        <div><span class="mono">Timeframe</span><strong>2021–2024</strong></div>
+        <div><span class="mono">Tools</span><strong>Figma, Principle</strong></div>
+      </div>
+    </div>
+
+    <section class="wrap">
+      <span class="mono">Context</span>
+      <p style="max-width: 70ch; font-size: 1.02rem; margin-top: 12px">
+        TwinX lets enterprise operations teams simulate the downstream effect of a decision — a
+        staffing change, a supply reroute — before making it, using actor-model computation to model
+        how thousands of interdependent processes would respond.
+      </p>
+    </section>
+
+    <section class="wrap">
+      <span class="mono">Problem</span>
+      <p style="max-width: 70ch; font-size: 1.02rem; margin-top: 12px">
+        Early prototypes showed simulation results as raw data tables. Operations leads couldn't
+        tell whether a result was good news without cross-referencing three other screens.
+      </p>
+    </section>
+
+    <section class="wrap">
+      <div class="two-col">
+        <div>
+          <span class="mono">Process &amp; decisions</span>
+          <ul class="decision-list" style="margin-top: 16px">
+            <li>
+              Redesigned the results view around comparison, not raw output — every simulation shows
+              against a baseline by default.
+            </li>
+            <li>
+              Cut the onboarding flow from 12 steps to 4 after usability testing with 6 operations
+              leads.
+            </li>
+            <li>
+              Introduced a confidence indicator so leads could tell simulated-but-uncertain results
+              from validated ones.
+            </li>
+          </ul>
+        </div>
+        <div class="viewport-frame">
+          <span class="corner tl" aria-hidden="true"></span
+          ><span class="corner br" aria-hidden="true"></span>
+          <div class="artifact-canvas">
+            <div class="artifact">
+              <div class="row">
+                <div class="panel">
+                  <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+                    <polyline
+                      points="0,45 40,30 80,38 120,15 160,22 200,8"
+                      fill="none"
+                      stroke="var(--fg-muted)"
+                      stroke-width="2"
+                    />
+                    <polyline
+                      points="0,50 40,42 80,48 120,32 160,36 200,20"
+                      fill="none"
+                      stroke="var(--accent)"
+                      stroke-width="2"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div class="bar w80" style="margin-top: 12px"></div>
+              <div class="bar w60"></div>
+            </div>
+          </div>
+          <div class="figure-caption">
+            <span class="mono">Fig. 02 — comparison view, v3</span
+            ><span class="mono">Placeholder art</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <span class="mono">Outcome</span>
+      <div
+        class="stats"
+        style="margin-top: 16px; grid-template-columns: repeat(2, 1fr); max-width: 520px"
+      >
+        <div class="stat">
+          <strong>40%↓</strong
+          ><span class="mono" style="text-transform: none; letter-spacing: 0"
+            >Time to interpret a result</span
+          >
+        </div>
+        <div class="stat">
+          <strong>6</strong
+          ><span class="mono" style="text-transform: none; letter-spacing: 0"
+            >Ops leads in validation testing</span
+          >
+        </div>
+      </div>
+      <p class="placeholder-note" style="margin-top: 20px; max-width: 60ch">
+        Illustrative figures for this mockup — real outcome metrics get sourced from Muthukumar
+        during Phase 14 content work, not fabricated here.
+      </p>
+    </section>
+
+    <section class="wrap">
+      <span class="mono">Reflection</span>
+      <p style="max-width: 70ch; font-size: 1.02rem; margin-top: 12px">
+        The comparison-first view was the right call, but it took two rounds of testing to get there
+        — the first version still asked leads to hold the baseline in their head. If I started over,
+        I'd usability-test the baseline framing before touching visual design at all.
+      </p>
+    </section>
+
+    <section class="wrap">
+      <span class="mono">Related work</span>
+      <div
+        class="grid-3"
+        style="margin-top: 16px; grid-template-columns: repeat(2, 1fr); max-width: 760px"
+      >
+        <a class="card" href="#" onclick="return false;">
+          <div class="card-body">
+            <h3>Euroclear Bank</h3>
+            <p class="card-desc">Modernizing a legacy settlement platform.</p>
+          </div>
+        </a>
+        <a class="card" href="#" onclick="return false;">
+          <div class="card-body">
+            <h3>Virtual Personal Stylist</h3>
+            <p class="card-desc">AI-personalized styling from one photo.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <a href="#" class="btn btn-ghost">Read another case study</a>
+      <a href="#" class="btn btn-primary">Get in touch</a>
+    </footer>
+  </div>
+
+  <!-- ================= RECRUITER MODE ================= -->
+  <div class="screen" data-screen="recruiter">
+    <div class="ruler"></div>
+    <div class="recruiter-shell">
+      <div class="recruiter-top">
+        <div class="wordmark">
+          <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+        </div>
+        <a href="#" class="mono" style="text-decoration: none" onclick="return false;"
+          >Exit → Full site</a
+        >
+      </div>
+      <span class="mono">Recruiter mode — condensed view</span>
+      <h1 style="font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin: 14px 0 8px">Muthukumar</h1>
+      <p style="color: var(--fg-muted); font-size: 1.05rem; margin: 0 0 8px">
+        Lead UX Designer · 10+ years · Enterprise platforms, AI, financial infrastructure
+      </p>
+
+      <div class="recruiter-list">
+        <div class="recruiter-card">
+          <div>
+            <h3>TCS TwinX — Digital Twin Decision Platform</h3>
+            <p>Lead UX Designer · AI Platform</p>
+          </div>
+          <span class="mono">2021–24</span>
+        </div>
+        <div class="recruiter-card">
+          <div>
+            <h3>Euroclear Bank — Platform Modernization</h3>
+            <p>Senior UX Designer · Financial Infrastructure</p>
+          </div>
+          <span class="mono">2018–21</span>
+        </div>
+        <div class="recruiter-card">
+          <div>
+            <h3>Virtual Personal Stylist</h3>
+            <p>UX Designer · Mobile, AI</p>
+          </div>
+          <span class="mono">2016–18</span>
+        </div>
+      </div>
+
+      <div class="recruiter-ctas">
+        <a href="#" class="btn btn-primary">Download résumé (PDF)</a>
+        <a href="#" class="btn btn-ghost">Contact</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= WORK INDEX ================= -->
+  <div class="screen" data-screen="work">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px">
+      <span class="mono">Work</span>
+      <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.6rem); margin: 12px 0 28px">
+        Case studies, research, and design artifacts.
+      </h1>
+      <div class="filter-tabs">
+        <button type="button" data-active="true">All</button>
+        <button type="button">Case Studies</button>
+        <button type="button">Research</button>
+        <button type="button">Presentations</button>
+        <button type="button">Branding</button>
+      </div>
+      <div class="grid-3">
+        <a class="card" href="#" onclick="return false;">
+          <div
+            class="card-cover"
+            style="background: linear-gradient(135deg, var(--ink-surface), #1a2a26)"
+          >
+            <svg width="64" height="36" viewBox="0 0 64 36">
+              <polyline
+                points="0,30 12,20 24,24 36,10 48,16 64,4"
+                fill="none"
+                stroke="var(--accent)"
+                stroke-width="2"
+              />
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3>TCS TwinX</h3>
+            <div class="card-meta">
+              <span class="mono">Lead UX</span><span class="mono">AI Platform</span>
+            </div>
+            <p class="card-desc">
+              Interface for simulating enterprise decisions before committing to them.
+            </p>
+          </div>
+        </a>
+        <a class="card locked" href="#" onclick="return false;">
+          <div
+            class="card-cover"
+            style="background: linear-gradient(135deg, var(--ink-surface), #1a2430)"
+          >
+            <span class="lock-badge">🔒 Recruiter only</span>
+          </div>
+          <div class="card-body">
+            <h3>Euroclear Bank</h3>
+            <div class="card-meta">
+              <span class="mono">Senior UX</span><span class="mono">Fin. Infra</span>
+            </div>
+            <p class="card-desc">
+              Modernizing a legacy settlement platform — request access to view.
+            </p>
+          </div>
+        </a>
+        <a class="card" href="#" onclick="return false;">
+          <div
+            class="card-cover"
+            style="background: linear-gradient(135deg, var(--ink-surface), #241a30)"
+          >
+            <svg width="64" height="36" viewBox="0 0 64 36">
+              <circle cx="16" cy="18" r="10" fill="none" stroke="var(--accent)" stroke-width="2" />
+              <circle
+                cx="40"
+                cy="18"
+                r="14"
+                fill="none"
+                stroke="var(--fg-muted)"
+                stroke-width="2"
+              />
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3>Virtual Personal Stylist</h3>
+            <div class="card-meta">
+              <span class="mono">UX Design</span><span class="mono">Mobile · AI</span>
+            </div>
+            <p class="card-desc">
+              Personalized styling recommendations from a closet you photograph once.
+            </p>
+          </div>
+        </a>
+        <a class="card" href="#" onclick="return false;">
+          <div
+            class="card-cover"
+            style="background: linear-gradient(135deg, var(--ink-surface), #1a2a26)"
+          >
+            <svg width="64" height="36" viewBox="0 0 64 36">
+              <rect
+                x="6"
+                y="6"
+                width="52"
+                height="24"
+                rx="2"
+                fill="none"
+                stroke="var(--fg-muted)"
+                stroke-width="2"
+              />
+              <line x1="6" y1="18" x2="58" y2="18" stroke="var(--accent)" stroke-width="2" />
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3>Music Application</h3>
+            <div class="card-meta">
+              <span class="mono">UX Design</span><span class="mono">Responsive</span>
+            </div>
+            <p class="card-desc">
+              Browsing and playback for a 6-million-song catalog on any screen size.
+            </p>
+          </div>
+        </a>
+        <a class="card" href="#" onclick="return false;">
+          <div
+            class="card-cover"
+            style="background: linear-gradient(135deg, var(--ink-surface), #241a30)"
+          >
+            <svg width="64" height="36" viewBox="0 0 64 36">
+              <polyline
+                points="4,30 20,10 36,26 60,6"
+                fill="none"
+                stroke="var(--accent)"
+                stroke-width="2"
+              />
+            </svg>
+          </div>
+          <div class="card-body">
+            <h3>Operations research synthesis</h3>
+            <div class="card-meta">
+              <span class="mono">Research</span><span class="mono">TwinX</span>
+            </div>
+            <p class="card-desc">
+              Field study with 6 operations leads that shaped TwinX's comparison-first view.
+            </p>
+          </div>
+        </a>
+      </div>
+      <div class="empty-state" style="margin-top: 20px">
+        No Branding or Presentation Design items published yet — this filter shows an honest empty
+        state rather than filler cards until real work is added.
+      </div>
+    </div>
+    <footer class="site-footer">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="cols">
+        <div><a href="#">Work</a><a href="#">About</a><a href="#">Writing</a></div>
+        <div><a href="#">Resume</a><a href="#">Testimonials</a><a href="#">Awards</a></div>
+        <div><a href="#">Contact</a><a href="#">LinkedIn</a></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================= ABOUT ================= -->
+  <div class="screen" data-screen="about">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px; max-width: 900px">
+      <span class="mono">About</span>
+      <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.8rem); margin: 12px 0 20px">
+        I design for the moment someone has to trust a system they can't fully see.
+      </h1>
+      <p style="font-size: 1.02rem; max-width: 68ch">
+        Ten years in, most of what I've shipped sits behind a login: enterprise dashboards,
+        simulation tools, banking infrastructure — software judged by whether people trust it under
+        pressure, not by how it photographs. That's shaped how I work: fewer flourishes, more
+        usability testing, and a habit of asking what a screen has to prove before I decide what it
+        should look like.
+      </p>
+      <p style="font-size: 1.02rem; max-width: 68ch">
+        I've spent the last several years leading design for platforms at TCS and McKinsey Global
+        Services, and mentoring the designers who came up alongside me.
+      </p>
+    </div>
+    <section class="wrap">
+      <span class="mono">Scope</span>
+      <div class="stats" style="margin-top: 16px">
+        <div class="stat">
+          <strong>10+</strong
+          ><span class="mono" style="text-transform: none; letter-spacing: 0"
+            >Years in UX &amp; design leadership</span
+          >
+        </div>
+        <div class="stat">
+          <strong>15+</strong
+          ><span class="mono" style="text-transform: none; letter-spacing: 0"
+            >Designers mentored</span
+          >
+        </div>
+        <div class="stat">
+          <strong>3</strong
+          ><span class="mono" style="text-transform: none; letter-spacing: 0"
+            >Industries — banking, AI, retail</span
+          >
+        </div>
+      </div>
+    </section>
+    <section class="wrap">
+      <span class="mono">Awards</span>
+      <ul class="decision-list" style="margin-top: 16px; max-width: 60ch">
+        <li>
+          Award entries populate here from the Admin Dashboard — kept out of the mockup rather than
+          inventing unverifiable honors.
+        </li>
+      </ul>
+    </section>
+    <section class="wrap">
+      <span class="mono">What people say</span>
+      <p class="placeholder-note" style="margin-top: 16px">
+        Testimonials linked to specific projects appear here once sourced — same placeholder rule as
+        Home.
+      </p>
+    </section>
+    <footer class="site-footer">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <a href="#" class="btn btn-ghost">View résumé →</a>
+    </footer>
+  </div>
+
+  <!-- ================= WRITING ================= -->
+  <div class="screen" data-screen="writing">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px">
+      <span class="mono">Writing</span>
+      <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.6rem); margin: 12px 0 28px">
+        Notes on designing systems people have to trust.
+      </h1>
+      <div class="grid-3" style="grid-template-columns: 1fr">
+        <a
+          class="card"
+          href="#"
+          onclick="return false;"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+          "
+        >
+          <div>
+            <h3 style="margin-bottom: 4px">What a comparison-first view teaches you about trust</h3>
+            <p class="card-desc">Field notes from the TwinX redesign.</p>
+          </div>
+          <span class="mono">Draft</span>
+        </a>
+      </div>
+      <p class="placeholder-note" style="margin-top: 20px">
+        Article detail pages reuse the same long-form reading layout established on the Project
+        Detail template (Context/body typography, mono metadata row) — not rebuilt separately here
+        to avoid duplicating an identical pattern.
+      </p>
+    </div>
+    <footer class="site-footer">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ================= RESUME ================= -->
+  <div class="screen" data-screen="resume">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          gap: 16px;
+        "
+      >
+        <div>
+          <span class="mono">Résumé</span>
+          <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.6rem); margin: 12px 0 0">Career timeline</h1>
+        </div>
+        <a href="#" class="btn btn-primary">Download PDF</a>
+      </div>
+      <p
+        class="mono"
+        style="text-transform: none; letter-spacing: 0; color: var(--fg-muted); margin-top: 8px"
+      >
+        Hosted on-domain — replaces the current external Google Drive link (Phase 2 finding), and
+        the dates below are corrected to remove the overlapping-employment issue that Phase 2
+        flagged.
+      </p>
+    </div>
+    <section class="wrap">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="role">Lead UX Designer</div>
+          <div class="company">TATA Consultancy Services · 2021 – Present</div>
+          <ul>
+            <li>
+              Leads UX strategy and design execution for enterprise platforms, including TwinX.
+            </li>
+            <li>Mentors designers and strengthens shared design-system practice.</li>
+          </ul>
+          <span class="mono">→ TwinX case study</span>
+        </div>
+        <div class="timeline-item">
+          <div class="role">Senior Business Presentation Specialist</div>
+          <div class="company">McKinsey Global Services · 2015 – 2021</div>
+          <ul>
+            <li>
+              Defined UX strategy and design standards for internal analytics and automation
+              products.
+            </li>
+            <li>Mentored 15+ designers and interns across global teams.</li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <div class="role">Senior Web Analyst</div>
+          <div class="company">Scope E-Knowledge Center · 2013 – 2015</div>
+          <ul>
+            <li>
+              Built reusable data-visualization templates; improved workflow efficiency by 40%.
+            </li>
+          </ul>
+        </div>
+        <div class="timeline-item">
+          <div class="role">Electrical Engineer</div>
+          <div class="company">Santhi Enterprises · 2007 – 2013</div>
+          <ul>
+            <li>
+              Customer communication, testing procedures, and assembly — the technical grounding
+              before moving into design.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <footer class="site-footer">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <a href="#" class="btn btn-ghost">Back to Work →</a>
+    </footer>
+  </div>
+
+  <!-- ================= CONTACT ================= -->
+  <div class="screen" data-screen="contact">
+    <div class="ruler"></div>
+    <nav class="site-nav">
+      <div class="wordmark">
+        <strong>Muthukumar</strong><span class="mono">Lead UX Designer</span>
+      </div>
+      <div class="nav-links">
+        <a href="#">Work</a><a href="#">About</a><a href="#">Writing</a><a href="#">Resume</a
+        ><a href="#">Contact</a>
+      </div>
+      <div class="nav-utility"><a href="#" class="btn btn-pill">Recruiter Mode →</a></div>
+    </nav>
+    <div class="wrap" style="padding-top: 40px">
+      <span class="mono">Contact</span>
+      <h1 style="font-size: clamp(1.9rem, 3.6vw, 2.6rem); margin: 12px 0 28px">
+        A real, working form — the current site's doesn't submit anything.
+      </h1>
+      <div class="two-col">
+        <form onsubmit="return false;">
+          <div class="field">
+            <label for="mock-name">Full name *</label>
+            <input id="mock-name" type="text" placeholder="Jordan Lee" />
+          </div>
+          <div class="field">
+            <label for="mock-email">Email address *</label>
+            <input id="mock-email" type="email" placeholder="jordan@company.com" />
+          </div>
+          <div class="field has-error">
+            <label for="mock-subject">Subject</label>
+            <input id="mock-subject" type="text" />
+            <span class="error-text"
+              >Example error state — shown so the component's validation styling is reviewed here
+              too.</span
+            >
+          </div>
+          <div class="field">
+            <label for="mock-message">Message * (max 500 characters)</label>
+            <textarea id="mock-message" placeholder="What are you reaching out about?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send message</button>
+        </form>
+        <div>
+          <div class="admin-panel">
+            <h3 class="mono" style="text-transform: uppercase">Direct</h3>
+            <p style="margin: 0 0 6px">muthukumar@[domain].com</p>
+            <p style="margin: 0; color: var(--fg-muted)">linkedin.com/in/muthukumar1812</p>
+          </div>
+          <p class="placeholder-note">
+            Phone number and street-level address deliberately excluded — Phase 2 flagged both as
+            unnecessary public exposure on the current site.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN DASHBOARD ================= -->
+  <div class="screen" data-screen="admin">
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <div class="wordmark" style="margin-bottom: 20px">
+          <strong>Design OS</strong><span class="mono">Admin</span>
+        </div>
+        <a href="#" class="active" data-admin-tab="overview">Overview</a>
+        <a href="#" data-admin-tab="projects">Projects</a>
+        <a href="#" data-admin-tab="articles">Articles</a>
+        <a href="#" data-admin-tab="testimonials">Testimonials</a>
+        <a href="#" data-admin-tab="awards">Awards</a>
+        <a href="#" data-admin-tab="resume">Résumé</a>
+        <a href="#" data-admin-tab="requests">Access requests</a>
+        <a href="#" data-admin-tab="settings">Settings</a>
+      </aside>
+      <main class="admin-main">
+        <div class="admin-panel-view" data-admin-panel="overview" data-active="true">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Overview</h2>
+            <a href="#" class="btn btn-ghost">View live site ↗</a>
+          </div>
+          <div class="admin-stats">
+            <div class="admin-stat"><strong>5</strong><span class="mono">Published</span></div>
+            <div class="admin-stat"><strong>2</strong><span class="mono">Drafts</span></div>
+            <div class="admin-stat"><strong>1</strong><span class="mono">Recruiter-only</span></div>
+            <div class="admin-stat">
+              <strong>3</strong><span class="mono">Pending requests</span>
+            </div>
+          </div>
+          <div class="admin-panel">
+            <h3>Content</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Visibility</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TCS TwinX</td>
+                  <td>Project</td>
+                  <td><span class="pill pill-public">Public</span></td>
+                  <td class="mono">2 days ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Euroclear Bank</td>
+                  <td>Project</td>
+                  <td><span class="pill pill-recruiter">Recruiter</span></td>
+                  <td class="mono">1 week ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Confidential fintech concept</td>
+                  <td>Project</td>
+                  <td><span class="pill pill-private">Private</span></td>
+                  <td class="mono">3 weeks ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Comparison-first trust essay</td>
+                  <td>Article</td>
+                  <td><span class="pill pill-draft">Draft</span></td>
+                  <td class="mono">Today</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="admin-panel">
+            <h3>Access requests</h3>
+            <div class="request-row">
+              <div>j.doe@recruitingco.com <span class="mono">requested Euroclear Bank</span></div>
+              <div class="admin-actions"><button>Approve</button><button>Deny</button></div>
+            </div>
+            <div class="request-row">
+              <div>
+                hiring.manager@fintech.io
+                <span class="mono">requested Confidential fintech concept</span>
+              </div>
+              <div class="admin-actions"><button>Approve</button><button>Deny</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="projects">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Projects</h2>
+            <button type="button" class="btn btn-primary">+ New project</button>
+          </div>
+          <div class="admin-panel">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Visibility</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TCS TwinX</td>
+                  <td>Case Study</td>
+                  <td><span class="pill pill-public">Public</span></td>
+                  <td class="mono">2 days ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Euroclear Bank</td>
+                  <td>Case Study</td>
+                  <td><span class="pill pill-recruiter">Recruiter</span></td>
+                  <td class="mono">1 week ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Virtual Personal Stylist</td>
+                  <td>Case Study</td>
+                  <td><span class="pill pill-public">Public</span></td>
+                  <td class="mono">3 weeks ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Music Application</td>
+                  <td>Case Study</td>
+                  <td><span class="pill pill-public">Public</span></td>
+                  <td class="mono">1 month ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Operations research synthesis</td>
+                  <td>Research</td>
+                  <td><span class="pill pill-public">Public</span></td>
+                  <td class="mono">1 month ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+                <tr>
+                  <td>Confidential fintech concept</td>
+                  <td>Case Study</td>
+                  <td><span class="pill pill-private">Private</span></td>
+                  <td class="mono">3 weeks ago</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="articles">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Articles</h2>
+            <button type="button" class="btn btn-primary">+ New article</button>
+          </div>
+          <div class="admin-panel">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>What a comparison-first view teaches you about trust</td>
+                  <td><span class="pill pill-draft">Draft</span></td>
+                  <td class="mono">Today</td>
+                  <td class="admin-actions"><button>Edit</button><button>View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="placeholder-note">
+            Matches the Phase 4 content cadence — articles roll out post-launch, so this list stays
+            short until real pieces are ready to publish.
+          </p>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="testimonials">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Testimonials</h2>
+            <button type="button" class="btn btn-primary">+ Add testimonial</button>
+          </div>
+          <div class="empty-state">
+            No testimonials added yet. Per the Phase 4 editorial rule, only real, attributed quotes
+            go here — none are fabricated for this mockup.
+          </div>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="awards">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Awards</h2>
+            <button type="button" class="btn btn-primary">+ Add award</button>
+          </div>
+          <div class="empty-state">No awards added yet.</div>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="resume">
+          <div class="admin-topbar">
+            <h2 style="font-size: 1.3rem">Résumé</h2>
+            <button type="button" class="btn btn-ghost">Upload new PDF</button>
+          </div>
+          <div class="admin-panel">
+            <h3>Career timeline entries</h3>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Company</th>
+                  <th>Dates</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lead UX Designer</td>
+                  <td>TATA Consultancy Services</td>
+                  <td class="mono">2021 – Present</td>
+                  <td class="admin-actions"><button>Edit</button></td>
+                </tr>
+                <tr>
+                  <td>Senior Business Presentation Specialist</td>
+                  <td>McKinsey Global Services</td>
+                  <td class="mono">2015 – 2021</td>
+                  <td class="admin-actions"><button>Edit</button></td>
+                </tr>
+                <tr>
+                  <td>Senior Web Analyst</td>
+                  <td>Scope E-Knowledge Center</td>
+                  <td class="mono">2013 – 2015</td>
+                  <td class="admin-actions"><button>Edit</button></td>
+                </tr>
+                <tr>
+                  <td>Electrical Engineer</td>
+                  <td>Santhi Enterprises</td>
+                  <td class="mono">2007 – 2013</td>
+                  <td class="admin-actions"><button>Edit</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-ghost" style="margin-top: 14px">+ Add role</button>
+          </div>
+          <p class="placeholder-note">
+            PDF is hosted on-domain per the Phase 7 architecture — replacing the current site's
+            external Google Drive link.
+          </p>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="requests">
+          <div class="admin-topbar"><h2 style="font-size: 1.3rem">Access requests</h2></div>
+          <div class="filter-tabs">
+            <button type="button" data-active="true">All</button>
+            <button type="button">Pending</button>
+            <button type="button">Approved</button>
+            <button type="button">Denied</button>
+          </div>
+          <div class="admin-panel">
+            <div class="request-row">
+              <div>j.doe@recruitingco.com <span class="mono">requested Euroclear Bank</span></div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span class="pill pill-recruiter">Pending</span>
+                <div class="admin-actions"><button>Approve</button><button>Deny</button></div>
+              </div>
+            </div>
+            <div class="request-row">
+              <div>
+                hiring.manager@fintech.io
+                <span class="mono">requested Confidential fintech concept</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span class="pill pill-recruiter">Pending</span>
+                <div class="admin-actions"><button>Approve</button><button>Deny</button></div>
+              </div>
+            </div>
+            <div class="request-row">
+              <div>a.patel@designstudio.com <span class="mono">requested Euroclear Bank</span></div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span class="pill pill-public">Approved</span>
+              </div>
+            </div>
+            <div class="request-row">
+              <div>
+                spam@unrelated.biz <span class="mono">requested Confidential fintech concept</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span class="pill pill-private">Denied</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-panel-view" data-admin-panel="settings">
+          <div class="admin-topbar"><h2 style="font-size: 1.3rem">Settings</h2></div>
+          <div class="admin-panel" style="max-width: 480px">
+            <div class="field">
+              <label for="s-email">Admin email (magic link)</label
+              ><input id="s-email" type="email" value="muthukumar@[domain].com" />
+            </div>
+            <div class="field">
+              <label for="s-title">Site title</label
+              ><input id="s-title" type="text" value="Muthukumar — Lead UX Designer" />
+            </div>
+            <div class="field">
+              <label for="s-theme">Default theme</label
+              ><input id="s-theme" type="text" value="Dark" />
+            </div>
+            <button type="button" class="btn btn-primary">Save settings</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var tabs = document.querySelectorAll(".tabs button");
+    var screens = document.querySelectorAll(".screen");
+    tabs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        tabs.forEach(function (b) {
+          b.setAttribute("aria-selected", "false");
+        });
+        btn.setAttribute("aria-selected", "true");
+        var target = btn.getAttribute("data-tab");
+        screens.forEach(function (s) {
+          s.setAttribute(
+            "data-active",
+            s.getAttribute("data-screen") === target ? "true" : "false"
+          );
+        });
+      });
+    });
+    var themeBtn = document.getElementById("themeToggle");
+    var state = "auto";
+    themeBtn.addEventListener("click", function () {
+      state = state === "auto" ? "dark" : state === "dark" ? "light" : "auto";
+      if (state === "auto") {
+        root.removeAttribute("data-theme");
+        themeBtn.textContent = "Theme: Auto";
+      } else {
+        root.setAttribute("data-theme", state);
+        themeBtn.textContent = "Theme: " + state.charAt(0).toUpperCase() + state.slice(1);
+      }
+    });
+
+    var adminLinks = document.querySelectorAll(".admin-sidebar a[data-admin-tab]");
+    var adminPanels = document.querySelectorAll(".admin-panel-view[data-admin-panel]");
+    adminLinks.forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        var target = link.getAttribute("data-admin-tab");
+        adminLinks.forEach(function (l) {
+          l.classList.toggle("active", l === link);
+        });
+        adminPanels.forEach(function (p) {
+          p.setAttribute(
+            "data-active",
+            p.getAttribute("data-admin-panel") === target ? "true" : "false"
+          );
+        });
+      });
+    });
+  })();
+</script>
