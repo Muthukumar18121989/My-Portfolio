@@ -4,7 +4,8 @@ import { ArrowRight, Download, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Marquee } from "@/components/patterns/marquee";
 import { Reveal } from "@/components/patterns/reveal";
-import { profile, stats, companies, marqueeSkills } from "@/lib/content";
+import { CareerJourney } from "@/components/patterns/career-journey";
+import { profile, marqueeSkills, careerJourney, careerStats } from "@/lib/content";
 
 export default function Home() {
   return (
@@ -62,34 +63,46 @@ export default function Home() {
         <Marquee items={marqueeSkills} />
       </section>
 
-      {/* Companies + stats */}
+      {/* Career Journey */}
       <Reveal>
         <section className="flex flex-col gap-10 px-6 py-16 md:px-16">
-          <div className="flex flex-col gap-4">
-            <p className="font-mono text-xs tracking-[0.2em] text-fg-muted uppercase">
-              Selected companies
+          <div className="flex flex-col gap-3">
+            <h2 className="font-display text-2xl font-extrabold text-fg md:text-3xl">
+              Career Journey
+            </h2>
+            <p className="max-w-2xl text-sm leading-relaxed text-fg-muted md:text-base">
+              A decade of designing enterprise experiences, solving complex business problems, and
+              building scalable digital products.
             </p>
-            <div className="flex flex-wrap gap-x-10 gap-y-3">
-              {companies.map((company) => (
+          </div>
+
+          <CareerJourney milestones={careerJourney} />
+
+          <div className="flex flex-col gap-6 border-t border-border pt-10">
+            <div className="flex flex-wrap gap-10">
+              <div className="flex flex-col gap-1.5">
+                <span className="font-display text-3xl font-extrabold text-accent md:text-4xl">
+                  {careerStats.years}
+                </span>
+                <span className="text-sm text-fg-muted">Years Experience</span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <span className="font-display text-3xl font-extrabold text-accent md:text-4xl">
+                  {careerStats.organizations}
+                </span>
+                <span className="text-sm text-fg-muted">Organizations</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {careerStats.tags.map((tag) => (
                 <span
-                  key={company}
-                  className="font-display text-lg font-medium text-fg-muted md:text-xl"
+                  key={tag}
+                  className="rounded-full border border-border px-3.5 py-1.5 font-mono text-xs tracking-[0.05em] text-fg-muted uppercase"
                 >
-                  {company}
+                  {tag}
                 </span>
               ))}
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 border-t border-border pt-10 md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col gap-1.5">
-                <span className="font-display text-3xl font-extrabold text-accent md:text-4xl">
-                  {stat.value}
-                </span>
-                <span className="text-sm text-fg-muted">{stat.label}</span>
-              </div>
-            ))}
           </div>
         </section>
       </Reveal>
