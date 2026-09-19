@@ -103,6 +103,53 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       ? (["overview", "problem", "myRole"] as const)
       : SECTION_ORDER;
 
+  const screenshotsGrid = (
+    <div className="grid gap-10 md:grid-cols-2">
+      {project.screenshots.map((shot) =>
+        project.screenshotStyle === "laptop" ? (
+          <figure key={shot.src} className="flex flex-col gap-3">
+            <LaptopMockup>
+              <Image
+                src={shot.src}
+                alt={`${project.title} — ${shot.caption}`}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </LaptopMockup>
+            <figcaption className="text-center text-sm text-fg-muted">{shot.caption}</figcaption>
+          </figure>
+        ) : project.screenshotStyle === "contain" ? (
+          <figure key={shot.src} className="overflow-hidden border border-border bg-bg-surface">
+            <div className="relative h-[420px] w-full">
+              <Image
+                src={shot.src}
+                alt={`${project.title} — ${shot.caption}`}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-contain"
+              />
+            </div>
+            <figcaption className="px-4 py-3 text-sm text-fg-muted">{shot.caption}</figcaption>
+          </figure>
+        ) : (
+          <figure key={shot.src} className="overflow-hidden border border-border bg-bg-surface">
+            <div className="relative aspect-[16/10]">
+              <Image
+                src={shot.src}
+                alt={`${project.title} — ${shot.caption}`}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <figcaption className="px-4 py-3 text-sm text-fg-muted">{shot.caption}</figcaption>
+          </figure>
+        )
+      )}
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-16 px-6 py-20 md:px-16 md:py-28">
       {/* Hero */}
@@ -194,69 +241,21 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
       {CustomCaseStudy && <CustomCaseStudy />}
 
-      {/* Application screens */}
+      {/* Screenshots — heading defaults to "Application Screens" but is
+          overridable per project (e.g. hardware renders aren't app UI).
+          Gated only for private projects — per the Project type's own
+          documented contract, "public" means no gate. */}
       {project.screenshots.length > 0 && (
         <Reveal variant="up">
           <section className="grid-line-t flex flex-col gap-6 pt-10">
-            <h2 className="text-display-md text-fg">Application Screens</h2>
-            <RecruiterGate>
-              <div className="grid gap-10 md:grid-cols-2">
-                {project.screenshots.map((shot) =>
-                  project.screenshotStyle === "laptop" ? (
-                    <figure key={shot.src} className="flex flex-col gap-3">
-                      <LaptopMockup>
-                        <Image
-                          src={shot.src}
-                          alt={`${project.title} — ${shot.caption}`}
-                          fill
-                          sizes="(min-width: 768px) 50vw, 100vw"
-                          className="object-cover"
-                        />
-                      </LaptopMockup>
-                      <figcaption className="text-center text-sm text-fg-muted">
-                        {shot.caption}
-                      </figcaption>
-                    </figure>
-                  ) : project.screenshotStyle === "contain" ? (
-                    <figure
-                      key={shot.src}
-                      className="overflow-hidden border border-border bg-bg-surface"
-                    >
-                      <div className="relative h-[420px] w-full">
-                        <Image
-                          src={shot.src}
-                          alt={`${project.title} — ${shot.caption}`}
-                          fill
-                          sizes="(min-width: 768px) 50vw, 100vw"
-                          className="object-contain"
-                        />
-                      </div>
-                      <figcaption className="px-4 py-3 text-sm text-fg-muted">
-                        {shot.caption}
-                      </figcaption>
-                    </figure>
-                  ) : (
-                    <figure
-                      key={shot.src}
-                      className="overflow-hidden border border-border bg-bg-surface"
-                    >
-                      <div className="relative aspect-[16/10]">
-                        <Image
-                          src={shot.src}
-                          alt={`${project.title} — ${shot.caption}`}
-                          fill
-                          sizes="(min-width: 768px) 50vw, 100vw"
-                          className="object-cover"
-                        />
-                      </div>
-                      <figcaption className="px-4 py-3 text-sm text-fg-muted">
-                        {shot.caption}
-                      </figcaption>
-                    </figure>
-                  )
-                )}
-              </div>
-            </RecruiterGate>
+            <h2 className="text-display-md text-fg">
+              {project.screenshotsHeading ?? "Application Screens"}
+            </h2>
+            {project.visibility === "private" ? (
+              <RecruiterGate>{screenshotsGrid}</RecruiterGate>
+            ) : (
+              screenshotsGrid
+            )}
           </section>
         </Reveal>
       )}

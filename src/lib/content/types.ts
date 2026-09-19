@@ -52,6 +52,10 @@ export interface Project {
       image at its natural aspect ratio without cropping (for mobile
       screenshots and process artifacts of varying proportions). */
   screenshotStyle?: "laptop" | "contain";
+  /** Heading for the screenshots section. Defaults to "Application Screens" —
+      override for projects whose `screenshots` aren't app UI (e.g. hardware
+      product renders). */
+  screenshotsHeading?: string;
   sections: {
     overview: CaseStudySection;
     problem: CaseStudySection;

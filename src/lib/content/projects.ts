@@ -621,6 +621,7 @@ export const projects: Project[] = [
     externalUrl: "/continuous-health/band.html",
     externalUrlLabel: "View the live concept",
     screenshotStyle: "contain",
+    screenshotsHeading: "Product Gallery",
     sections: {
       overview: {
         heading: "Overview",
