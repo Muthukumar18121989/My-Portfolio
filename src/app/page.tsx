@@ -1,21 +1,10 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Hero } from "@/components/patterns/hero";
 import { SectionBlock } from "@/components/patterns/section-block";
 import { ProjectAccordion } from "@/components/patterns/project-accordion";
 import { CareerTimeline } from "@/components/patterns/career-timeline";
-import { AboutPortrait } from "@/components/patterns/about-portrait";
+import { AboutPreview } from "@/components/patterns/about-preview";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
-import {
-  profile,
-  stats,
-  careerJourney,
-  careerStats,
-  projects,
-  skillGroups,
-  funFacts,
-} from "@/lib/content";
+import { profile, careerJourney, careerStats, projects, skillGroups } from "@/lib/content";
 
 const TOTAL_SECTIONS = "06";
 
@@ -137,49 +126,7 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <SectionBlock
-        index="05"
-        total={TOTAL_SECTIONS}
-        eyebrow="Beyond the résumé"
-        title="About"
-        description={profile.aboutIntro}
-        className="overflow-x-clip"
-      >
-        <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-16">
-          <div className="flex flex-col gap-8">
-            <Reveal variant="up">
-              <div className="grid max-w-md grid-cols-2 gap-x-8 gap-y-6">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="flex flex-col gap-1">
-                    <span className="text-display-md text-accent">{stat.value}</span>
-                    <span className="text-xs leading-snug text-fg-muted">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <StaggerGroup className="flex flex-col">
-              {funFacts.map((fact) => (
-                <StaggerItem
-                  key={fact}
-                  className="grid-line-t py-3 text-sm leading-relaxed text-fg-muted"
-                >
-                  {fact}
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
-            <Reveal variant="up">
-              <Button asChild variant="secondary" size="lg" className="self-start">
-                <Link href="/about">
-                  More about me <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </Reveal>
-          </div>
-          <Reveal variant="scale" delay={0.15}>
-            <AboutPortrait name={profile.name} />
-          </Reveal>
-        </div>
-      </SectionBlock>
+      <AboutPreview index="05" total={TOTAL_SECTIONS} eyebrow="Beyond the résumé" />
 
       <SectionBlock index="06" total={TOTAL_SECTIONS} eyebrow="Testimonials" title="Kind words">
         <Reveal variant="up">
