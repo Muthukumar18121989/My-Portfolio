@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 // slow-rotating dashed ring behind it and four floating badge chips orbiting
 // the corners. Badge labels are short paraphrases of real content already in
 // src/lib/content/profile.ts (funFacts, philosophy) — not invented
-// personality claims. The source photo (public/images/profile.jpg) has a
-// light, busy background from its original shoot; since there's no dark-
-// background version of it yet, it's desaturated and given a dark/accent
-// color-wash overlay here (CSS only) to sit believably on a black canvas —
-// swapping in an actual dark-background photo later would look even better.
+// personality claims. The photo (public/images/profile-dark.webp) already
+// has a dark, on-theme backdrop but its own circular vignette leaves light
+// pixelated corners outside that circle — framing the portrait as a circle
+// (rather than the rounded-rect card this used before) crops those corners
+// away entirely instead of fighting them with overlays.
 const BADGES: { icon: LucideIcon; label: string; position: string }[] = [
   { icon: Layers, label: "Systems Thinker", position: "-top-4 left-0 md:-left-6" },
   { icon: Component, label: "Design Systems Advocate", position: "-top-4 right-0 md:-right-6" },
@@ -84,17 +84,15 @@ function AboutPortrait({ name, className }: AboutPortraitProps) {
         style={{ margin: "-1.5rem" }}
       />
 
-      <div className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-[2rem] border border-border shadow-2xl shadow-black/50">
+      <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-full border border-border shadow-2xl shadow-black/50">
         <Image
-          src="/images/profile.jpg"
+          src="/images/profile-dark.webp"
           alt={name}
           fill
           sizes="(min-width: 768px) 24rem, 80vw"
-          className="object-cover object-top grayscale contrast-125"
+          className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-bg/40" />
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-transparent to-transparent mix-blend-color" />
       </div>
 
       {BADGES.map((badge, i) => (

@@ -67,14 +67,13 @@ function Hero({ profile }: HeroProps) {
         <Reveal variant="scale">
           <div className="relative size-20 overflow-hidden rounded-full border-2 border-border shadow-lg shadow-black/40 md:size-24">
             <Image
-              src="/images/profile.jpg"
+              src="/images/profile-dark.webp"
               alt={profile.name}
               fill
               sizes="96px"
-              className="object-cover object-top grayscale contrast-125"
+              className="object-cover"
               priority
             />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-bg/50 via-transparent to-transparent" />
           </div>
         </Reveal>
         <h1 className="text-fg">
