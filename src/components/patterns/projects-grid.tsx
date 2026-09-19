@@ -27,12 +27,17 @@ const COVER_ART: Record<string, React.ReactNode> = {
 function getCover(project: Project) {
   if (project.heroImage) {
     return (
+      // object-contain, not object-cover: these banners are wide (21:9) and
+      // carry headline text near the edges — cropping to the card's 16:9 box
+      // was cutting that text off. Contain shows the full image; the
+      // letterboxing is invisible because the banners' own near-black
+      // background already matches the card's bg-bg.
       <Image
         src={project.heroImage.src}
         alt={project.heroImage.alt}
         fill
         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-        className="object-cover"
+        className="object-contain"
       />
     );
   }

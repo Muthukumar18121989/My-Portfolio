@@ -43,12 +43,16 @@ const FALLBACK_HERO_ART: Record<string, ReactNode> = {
 function getFeaturedArt(project: Project): ReactNode {
   if (project.heroImage) {
     return (
+      // object-contain: these banners are wide (21:9) with headline text
+      // near the edges — object-cover was cropping that text off inside
+      // the card's narrower box. The letterboxing is invisible because the
+      // banners' own near-black background matches the card's bg-bg.
       <Image
         src={project.heroImage.src}
         alt={project.heroImage.alt}
         fill
         sizes="(min-width: 768px) 50vw, 100vw"
-        className="object-cover"
+        className="object-contain"
       />
     );
   }
