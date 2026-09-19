@@ -7,6 +7,7 @@ import { Hero } from "@/components/patterns/hero";
 import { SectionBlock } from "@/components/patterns/section-block";
 import { ShowcaseProjectCard } from "@/components/patterns/showcase-project-card";
 import { CareerTimeline } from "@/components/patterns/career-timeline";
+import { AboutPortrait } from "@/components/patterns/about-portrait";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
 import {
   TwinxHeroArt,
@@ -16,6 +17,7 @@ import {
 } from "@/components/patterns/case-study-hero-art";
 import {
   profile,
+  stats,
   careerJourney,
   careerStats,
   projects,
@@ -181,24 +183,40 @@ export default function Home() {
         eyebrow="Beyond the résumé"
         title="About"
         description={profile.aboutIntro}
+        className="overflow-x-clip"
       >
-        <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
-          <StaggerGroup className="flex flex-col gap-4">
-            {funFacts.map((fact) => (
-              <StaggerItem
-                key={fact}
-                className="grid-line-t pt-4 text-sm leading-relaxed text-fg-muted"
-              >
-                {fact}
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-          <Reveal variant="up">
-            <Button asChild variant="secondary" size="lg" className="self-start">
-              <Link href="/about">
-                More about me <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
+        <div className="grid gap-12 md:grid-cols-[1fr_0.8fr] md:items-center md:gap-16">
+          <div className="flex flex-col gap-8">
+            <Reveal variant="up">
+              <div className="grid max-w-md grid-cols-2 gap-x-8 gap-y-6">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="flex flex-col gap-1">
+                    <span className="text-display-md text-accent">{stat.value}</span>
+                    <span className="text-xs leading-snug text-fg-muted">{stat.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+            <StaggerGroup className="flex flex-col">
+              {funFacts.map((fact) => (
+                <StaggerItem
+                  key={fact}
+                  className="grid-line-t py-3 text-sm leading-relaxed text-fg-muted"
+                >
+                  {fact}
+                </StaggerItem>
+              ))}
+            </StaggerGroup>
+            <Reveal variant="up">
+              <Button asChild variant="secondary" size="lg" className="self-start">
+                <Link href="/about">
+                  More about me <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            </Reveal>
+          </div>
+          <Reveal variant="scale" delay={0.15}>
+            <AboutPortrait name={profile.name} className="max-w-xs" />
           </Reveal>
         </div>
       </SectionBlock>
