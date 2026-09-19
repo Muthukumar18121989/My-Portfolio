@@ -4,13 +4,13 @@ import * as React from "react";
 import { Send } from "lucide-react";
 import { FormField } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
-import { profile } from "@/lib/content";
+import { cn } from "@/lib/utils";
 
-// Frontend-only contact form. There's no backend to receive a POST, so a
-// validated submit opens the visitor's own email client via a pre-filled
-// mailto: link — a real, working send path rather than a form that silently
-// does nothing (see PHASE-2-FRAMER-AUDIT.md: the previous site's contact
-// form had no <input>/<textarea>/<button> in the DOM at all).
+// Contact form backed by a real send path: POSTs to /api/contact, which
+// sends via Resend (see src/app/api/contact/route.ts and .env.example for
+// the RESEND_API_KEY setup). Previously this only opened a mailto: draft in
+// the visitor's own email client — see git history for that version if the
+// Resend send path ever needs to be rolled back.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,12 +21,15 @@ interface FormState {
   message: string;
 }
 
+type SubmitStatus = "idle" | "sending" | "sent" | "error";
+
 const initialState: FormState = { name: "", email: "", subject: "", message: "" };
 
 function ContactForm() {
   const [values, setValues] = React.useState<FormState>(initialState);
   const [errors, setErrors] = React.useState<Partial<FormState>>({});
-  const [sent, setSent] = React.useState(false);
+  const [status, setStatus] = React.useState<SubmitStatus>("idle");
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
   function validate(): boolean {
     const next: Partial<FormState> = {};
@@ -39,20 +42,41 @@ function ContactForm() {
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
 
-    const body = `${values.message}\n\n— ${values.name} (${values.email})`;
-    const mailto = `mailto:${profile.email}?subject=${encodeURIComponent(
-      values.subject
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
-    setSent(true);
+    setStatus("sending");
+    setServerError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const data = (await res.json().catch(() => null)) as { error?: string } | null;
+
+      if (!res.ok) {
+        setServerError(data?.error ?? "Couldn't send your message. Please try again.");
+        setStatus("error");
+        return;
+      }
+
+      setStatus("sent");
+      setValues(initialState);
+    } catch {
+      setServerError("Couldn't reach the server. Check your connection and try again.");
+      setStatus("error");
+    }
   }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
+    if (status === "error" || status === "sent") {
+      setStatus("idle");
+      setServerError(null);
+    }
   }
 
   return (
@@ -91,13 +115,19 @@ function ContactForm() {
         onChange={(e) => update("message", e.target.value)}
         error={errors.message}
       />
-      <Button type="submit" size="lg" className="self-start">
-        Send Message <Send className="size-4" aria-hidden="true" />
+      <Button type="submit" size="lg" className="self-start" loading={status === "sending"}>
+        {status === "sending" ? "Sending..." : "Send Message"}
+        {status !== "sending" && <Send className="size-4" aria-hidden="true" />}
       </Button>
-      <p className="text-xs text-fg-muted" role="status">
-        {sent
-          ? "Opening your email client with this message pre-filled — send it from there."
-          : "Submitting opens your email client with this message pre-filled."}
+      <p
+        className={cn("text-xs", status === "error" ? "text-danger" : "text-fg-muted")}
+        role={status === "error" ? "alert" : "status"}
+      >
+        {status === "sent"
+          ? "Message sent — thanks for reaching out, I'll reply by email soon."
+          : status === "error"
+            ? serverError
+            : "Sends directly to my inbox."}
       </p>
     </form>
   );
