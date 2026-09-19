@@ -185,7 +185,7 @@ export default function Home() {
         description={profile.aboutIntro}
         className="overflow-x-clip"
       >
-        <div className="grid gap-12 md:grid-cols-[1fr_0.8fr] md:items-center md:gap-16">
+        <div className="grid gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-16">
           <div className="flex flex-col gap-8">
             <Reveal variant="up">
               <div className="grid max-w-md grid-cols-2 gap-x-8 gap-y-6">
@@ -216,7 +216,7 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal variant="scale" delay={0.15}>
-            <AboutPortrait name={profile.name} className="max-w-xs" />
+            <AboutPortrait name={profile.name} />
           </Reveal>
         </div>
       </SectionBlock>
