@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Mail, MapPin, ExternalLink } from "lucide-react";
 import { ContactForm } from "@/components/patterns/contact-form";
+import { Reveal } from "@/components/motion/section-reveal";
+import { WordReveal } from "@/components/motion/text-reveal";
 import { profile, socialLinks } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -15,13 +17,17 @@ const contactLinks = [
 
 export default function ContactPage() {
   return (
-    <div className="grid gap-16 px-6 py-16 md:grid-cols-2 md:px-16 md:py-24">
+    <div className="grid-line-t grid gap-16 px-6 py-20 md:grid-cols-2 md:px-16 md:py-28">
       <div className="flex flex-col gap-6">
-        <h1 className="font-display text-4xl font-extrabold text-fg md:text-6xl">Contact</h1>
-        <p className="max-w-md text-base leading-relaxed text-fg-muted md:text-lg">
-          Open to senior/lead/principal product design roles and select consulting engagements.
-          Reach out directly, or use the form.
-        </p>
+        <h1 className="text-display-xl text-fg">
+          <WordReveal text="Contact" />
+        </h1>
+        <Reveal variant="up" delay={0.15}>
+          <p className="max-w-md text-base leading-relaxed text-fg-muted md:text-lg">
+            Open to senior/lead/principal product design roles and select consulting engagements.
+            Reach out directly, or use the form.
+          </p>
+        </Reveal>
         <ul className="flex flex-col gap-3 pt-2">
           {contactLinks.map((link) => (
             <li key={link.label}>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/motion/section-reveal";
+import { WordReveal } from "@/components/motion/text-reveal";
 
 const RESUME_PATH = "/Muthukumar-D-Resume.pdf";
 
@@ -11,14 +13,18 @@ export const metadata: Metadata = {
 
 export default function ResumePage() {
   return (
-    <div className="flex flex-col gap-8 px-6 py-16 md:px-16 md:py-24">
+    <div className="grid-line-t flex flex-col gap-8 px-6 py-20 md:px-16 md:py-28">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex flex-col gap-4">
-          <h1 className="font-display text-4xl font-extrabold text-fg md:text-6xl">Resume</h1>
-          <p className="max-w-xl text-base leading-relaxed text-fg-muted">
-            10+ years of UX design experience across enterprise AI, financial infrastructure, and
-            global consulting. Preview below, or download the PDF.
-          </p>
+          <h1 className="text-display-xl text-fg">
+            <WordReveal text="Resume" />
+          </h1>
+          <Reveal variant="up" delay={0.15}>
+            <p className="max-w-xl text-base leading-relaxed text-fg-muted">
+              10+ years of UX design experience across enterprise AI, financial infrastructure, and
+              global consulting. Preview below, or download the PDF.
+            </p>
+          </Reveal>
         </div>
         <Button asChild size="lg">
           <a href={RESUME_PATH} download="Muthukumar-D-Resume.pdf">
@@ -27,7 +33,7 @@ export default function ResumePage() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-border bg-bg-surface">
+      <div className="overflow-hidden border border-border bg-bg-surface">
         <object
           data={RESUME_PATH}
           type="application/pdf"

@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { MetadataBadge } from "@/components/ui/metadata-badge";
-import { Reveal } from "@/components/patterns/reveal";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MetadataChip } from "@/components/ui/metadata-chip";
+import { Reveal } from "@/components/motion/section-reveal";
+import { WordReveal } from "@/components/motion/text-reveal";
 import {
   TwinxHeroArt,
   EuroclearHeroArt,
@@ -18,6 +21,12 @@ import { MckToolsCaseStudy } from "@/components/case-studies/mck-tools/case-stud
 import { projects, getProjectBySlug } from "@/lib/content";
 import type { CaseStudySection } from "@/lib/content";
 
+// The black-canvas visual system applied to the case-study frame — headings,
+// metadata, section rhythm, image treatment. The bespoke Production Workflow
+// and McK Tools recreations (src/components/case-studies/*) are untouched:
+// this file only reskins what wraps them, per the brief's "reskin/reframe,
+// don't replace" instruction. Content, sections, claims, and images below
+// are all unchanged from the original template.
 const HERO_ART: Record<string, React.ComponentType> = {
   "twinx-ai-platform": TwinxHeroArt,
   "euroclear-bank": EuroclearHeroArt,
@@ -25,9 +34,6 @@ const HERO_ART: Record<string, React.ComponentType> = {
   "mck-tools": MckToolsHeroArt,
 };
 
-// Case studies whose content (heuristics, before/after screens, plugin
-// mockups) doesn't fit the generic 12-section template get a dedicated
-// component instead — additive per-slug, same pattern as enterpriseShowcase.
 const CUSTOM_CASE_STUDIES: Record<string, React.ComponentType> = {
   "production-workflow-revamp": ProductionWorkflowCaseStudy,
   "mck-tools": MckToolsCaseStudy,
@@ -66,12 +72,15 @@ const SECTION_ORDER: (keyof (typeof projects)[number]["sections"])[] = [
   "takeaways",
 ];
 
-function Section({ section }: { section: CaseStudySection }) {
+function Section({ section, index }: { section: CaseStudySection; index: number }) {
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="font-display text-xl font-extrabold text-fg md:text-2xl">{section.heading}</h2>
+    <section className="grid-line-t flex flex-col gap-3 pt-10">
+      <div className="flex items-baseline gap-4">
+        <span className="text-meta text-accent">{String(index + 1).padStart(2, "0")}</span>
+        <h2 className="text-display-md text-fg">{section.heading}</h2>
+      </div>
       {section.placeholder ? (
-        <p className="rounded-md border border-dashed border-border bg-bg-surface p-5 text-sm text-fg-muted">
+        <p className="border border-dashed border-border bg-bg-surface p-5 text-sm text-fg-muted">
           {section.body}
         </p>
       ) : (
@@ -95,49 +104,59 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       : SECTION_ORDER;
 
   return (
-    <div className="flex flex-col gap-16 px-6 py-16 md:px-16 md:py-24">
+    <div className="flex flex-col gap-16 px-6 py-20 md:px-16 md:py-28">
       {/* Hero */}
-      <div className="flex flex-col gap-6">
+      <div className="grid-line-t flex flex-col gap-6 pt-10">
         <Link
           href="/projects"
-          className="w-fit text-sm text-fg-muted hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          className="inline-flex w-fit items-center gap-2 text-meta text-fg-muted hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
         >
-          ← All projects
+          <ArrowLeft className="size-3.5" aria-hidden="true" /> All projects
         </Link>
-        <h1 className="font-display text-4xl font-extrabold text-fg md:text-6xl">
-          {project.title}
+        <h1 className="text-display-xl text-fg">
+          <WordReveal text={project.title} />
         </h1>
-        <div className="flex flex-wrap gap-2.5">
-          <MetadataBadge>{project.company}</MetadataBadge>
-          <MetadataBadge>{project.role}</MetadataBadge>
-          <MetadataBadge>{project.type}</MetadataBadge>
-          <MetadataBadge>{project.year}</MetadataBadge>
-        </div>
-        <div className="aspect-[21/9] overflow-hidden rounded-md border border-border bg-bg-surface">
-          {project.heroImage ? (
-            <div className="relative h-full w-full">
-              <Image
-                src={project.heroImage.src}
-                alt={project.heroImage.alt}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                priority
-              />
-            </div>
-          ) : HeroArt ? (
-            <HeroArt />
-          ) : null}
-        </div>
+        <Reveal variant="up" delay={0.15}>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <MetadataChip label="Company">{project.company}</MetadataChip>
+            <MetadataChip label="Role">{project.role}</MetadataChip>
+            <MetadataChip label="Type">{project.type}</MetadataChip>
+            <MetadataChip label="Year">{project.year}</MetadataChip>
+            {project.externalUrl && (
+              <Button asChild variant="secondary" size="sm" className="ml-1">
+                <a href={project.externalUrl} target="_blank" rel="noopener noreferrer">
+                  {project.externalUrlLabel ?? "View live"}{" "}
+                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                </a>
+              </Button>
+            )}
+          </div>
+        </Reveal>
+        <Reveal variant="scale" delay={0.2}>
+          <div className="aspect-[21/9] overflow-hidden border border-border bg-bg-surface">
+            {project.heroImage ? (
+              <div className="relative h-full w-full">
+                <Image
+                  src={project.heroImage.src}
+                  alt={project.heroImage.alt}
+                  fill
+                  sizes="100vw"
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            ) : HeroArt ? (
+              <HeroArt />
+            ) : null}
+          </div>
+        </Reveal>
       </div>
 
       {hasEnterpriseShowcase ? (
-        <Reveal>
-          <section className="flex flex-col gap-6">
+        <Reveal variant="up">
+          <section className="grid-line-t flex flex-col gap-6 pt-10">
             <div className="flex flex-col gap-3">
-              <h2 className="font-display text-2xl font-extrabold text-fg md:text-3xl">
-                Featured Enterprise Projects
-              </h2>
+              <h2 className="text-display-lg text-fg">Featured Enterprise Projects</h2>
               <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">
                 {project.title} is one platform serving multiple business units. Below: the platform
                 itself, its shared design system, and the domain-specific modules I designed under
@@ -153,8 +172,8 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         </Reveal>
       ) : (
         /* Impact */
-        <Reveal>
-          <section className="grid gap-4 border-y border-border py-8 md:grid-cols-3">
+        <Reveal variant="up">
+          <section className="grid-line-t grid gap-4 pt-10 md:grid-cols-3">
             {project.impact.map((line) => (
               <p key={line} className="text-sm leading-relaxed text-fg">
                 {line}
@@ -166,9 +185,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
       {/* Body sections */}
       <div className="flex flex-col gap-14">
-        {bodySections.map((key) => (
-          <Reveal key={key}>
-            <Section section={project.sections[key]} />
+        {bodySections.map((key, i) => (
+          <Reveal key={key} variant="up">
+            <Section section={project.sections[key]} index={i} />
           </Reveal>
         ))}
       </div>
@@ -177,11 +196,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
       {/* Application screens */}
       {project.screenshots.length > 0 && (
-        <Reveal>
-          <section className="flex flex-col gap-6 border-t border-border pt-10">
-            <h2 className="font-display text-xl font-extrabold text-fg md:text-2xl">
-              Application Screens
-            </h2>
+        <Reveal variant="up">
+          <section className="grid-line-t flex flex-col gap-6 pt-10">
+            <h2 className="text-display-md text-fg">Application Screens</h2>
             <RecruiterGate>
               <div className="grid gap-10 md:grid-cols-2">
                 {project.screenshots.map((shot) =>
@@ -203,7 +220,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                   ) : project.screenshotStyle === "contain" ? (
                     <figure
                       key={shot.src}
-                      className="overflow-hidden rounded-md border border-border bg-bg-surface"
+                      className="overflow-hidden border border-border bg-bg-surface"
                     >
                       <div className="relative h-[420px] w-full">
                         <Image
@@ -221,7 +238,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                   ) : (
                     <figure
                       key={shot.src}
-                      className="overflow-hidden rounded-md border border-border bg-bg-surface"
+                      className="overflow-hidden border border-border bg-bg-surface"
                     >
                       <div className="relative aspect-[16/10]">
                         <Image

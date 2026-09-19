@@ -598,6 +598,107 @@ export const projects: Project[] = [
     },
     screenshots: [],
   },
+  {
+    slug: "chi-band",
+    title: "Continuous Health — Band",
+    company: "Independent Project",
+    role: "Independent Product & UX Designer",
+    type: "Wearable Hardware Concept",
+    year: "Personal Project",
+    summary:
+      "An independent concept for a display-less companion band that closes the Apple Watch's charging gap — every claim sourced, modelled, or labelled as unmeasured, with an explicit section on what it doesn't do.",
+    featured: false,
+    visibility: "public",
+    impact: [
+      "Full concept-to-launch execution across two versioned releases — a v1.0 strategy site and a v1.1 Apple-style product page that resolves the open question v1.0 deliberately left unanswered",
+      "Every quantitative claim on the page is either cited to a published study, derived from a stated power budget, or explicitly marked as modelled/unmeasured — including a dedicated 'Limits' section",
+      "A complete concept specification (dimensions, sensors, sampling behavior, battery, materials) for an unbuilt device",
+    ],
+    heroImage: {
+      src: "/continuous-health/teaser/teaser-wide.jpg",
+      alt: "Continuous Health Band — concept product render across four finishes",
+    },
+    externalUrl: "/continuous-health/band.html",
+    externalUrlLabel: "View the live concept",
+    screenshotStyle: "contain",
+    sections: {
+      overview: {
+        heading: "Overview",
+        body: "Continuous Health is an independent concept for a passive, display-less wearable band designed to close the coverage gap left when a smartwatch is off the wrist charging. It's versioned across two releases: v1.0 laid out the concept, the research questions, and the product strategy; v1.1 returned to answer the one question v1.0 deliberately left open — how the companion device should be powered without reintroducing the exact gap it exists to close.",
+      },
+      problem: {
+        heading: "Problem",
+        body: "A smartwatch worn 18–24 hours between charges still leaves a recurring hole in a continuous health record: the 30–75 minutes it's off the wrist charging. v1.0 of this concept named that gap explicitly rather than glossing over it, and deferred the hardware answer rather than guessing at one prematurely.",
+      },
+      myRole: {
+        heading: "My Role",
+        body: "Independent concept designer, solo — positioning, technical specification, information architecture, and copy for both the v1.0 strategy site and the v1.1 product launch page, plus the power-budget reasoning that resolves the open question between them.",
+      },
+      research: {
+        heading: "Research",
+        body: "No primary user research has been conducted for this concept, and the site states that directly rather than implying otherwise. What stands in for it is a sourcing discipline: every quantitative claim is either cited to a published study — a 2025 SLEEP Advances validation of wrist-worn sleep tracking, a 2020 PLOS ONE study on resting-heart-rate variability — modelled from a stated power budget, or explicitly labelled as unmeasured.",
+      },
+      personas: {
+        heading: "Personas",
+        body: "No persona artifacts exist for this project — it's a solo concept exploration, not a client engagement with research participants. v1.0 was explicit that no primary user research had been conducted, and that's still true in v1.1; nothing on the page is presented as evidence that people want this.",
+        placeholder: true,
+      },
+      journey: {
+        heading: "Journey",
+        body: "The core flow is a 24-hour handoff between two devices: the watch covers the day at high fidelity and comes off once for its own charge; the Band, worn continuously, is charged in the exact window the watch is covering instead. Neither device is designed to be off the wrist at the same time as the other — and if both ever are, the record shows a gap rather than interpolating one that didn't happen.",
+      },
+      wireframes: {
+        heading: "Wireframes",
+        body: "This is a hardware concept rather than a screen-based product, so there's no traditional wireframe stage. The structural equivalent is the specification sheet (form, sensors, sampling, power) and the two-device coverage model above.",
+        placeholder: true,
+      },
+      process: {
+        heading: "Design Process",
+        body: "Two releases, not one draft. v1.0 established the concept, the founding research questions, and named an unresolved hardware question instead of guessing at an answer. v1.1 came back specifically to answer that question, and v1.0's own page was updated to point forward to it rather than being silently rewritten — amendments, not rewrites, as the versioning discipline for the whole project.",
+      },
+      uiDesign: {
+        heading: "UI Design",
+        body: "Built as a long-form, single-page product site following an Apple launch-page structure: a hero statement, a horizontally-scrolling highlights strip, feature sections built around the device's deliberate lack of a screen, a full specification sheet, and a numbered footnote system citing every external claim made on the page.",
+      },
+      decisions: {
+        heading: "Design Decisions",
+        body: 'No display was the central decision, argued explicitly rather than left implicit: a screen is the single largest power draw on a wrist device, and any display would force nightly charging — reopening the exact gap the Band exists to close. Charging in daylight while the watch is worn, not simply "longer battery life," is the mechanism that makes the two devices\' coverage additive instead of overlapping.',
+      },
+      challenges: {
+        heading: "Challenges",
+        body: "The concept states its own boundary directly, on the page itself, in a dedicated Limits section: it needs the watch as a calibration anchor and isn't a standalone replacement, makes no medical claims, has no primary research behind it, and leaves open exactly how Band-derived hours should be weighted against watch-derived hours in a single score.",
+      },
+      takeaways: {
+        heading: "Takeaways",
+        body: "The harder design problem wasn't the band itself — it was proving, in writing, that a second wearable doesn't quietly recreate the problem it's meant to solve. That meant stating a modelled (not measured) battery figure plainly, sourcing every claim, and giving the concept a \"what this doesn't do\" section most product pages skip entirely.",
+      },
+    },
+    screenshots: [
+      {
+        src: "/continuous-health/img/band-midnight-1600.webp",
+        caption: "Band — Midnight, the default finish",
+      },
+      { src: "/continuous-health/img/band-cobalt-1600.webp", caption: "Band — Cobalt" },
+      { src: "/continuous-health/img/band-starlight-1600.webp", caption: "Band — Starlight" },
+      { src: "/continuous-health/img/band-ember-1600.webp", caption: "Band — Ember" },
+      {
+        src: "/continuous-health/img/life-sleep-1600.webp",
+        caption: "Worn overnight — the eight hours most records miss",
+      },
+      {
+        src: "/continuous-health/img/life-swim-1600.webp",
+        caption: "5 ATM, sealed as one piece — no reason to take it off",
+      },
+      {
+        src: "/continuous-health/img/life-run-m-1600.webp",
+        caption: "Worn through the ordinary hours, not just the workout",
+      },
+      {
+        src: "/continuous-health/img/life-grid-1600.webp",
+        caption: "One record, assembled from all of it",
+      },
+    ],
+  },
 ];
 
 export function getProjectBySlug(slug: string) {

@@ -43,6 +43,11 @@ export interface Project {
   enterpriseShowcase?: EnterpriseShowcaseCard[];
   /** Real hero image (e.g. a device mockup) in place of the abstract SVG hero art. */
   heroImage?: { src: string; alt: string };
+  /** Link to a fully-built standalone artifact (e.g. a self-contained concept
+      site under /public) that this case study summarizes rather than
+      reproduces. Opens in a new tab — it's outside the Next.js app shell. */
+  externalUrl?: string;
+  externalUrlLabel?: string;
   /** "laptop" frames each screen in a laptop device; "contain" shows the
       image at its natural aspect ratio without cropping (for mobile
       screenshots and process artifacts of varying proportions). */

@@ -50,12 +50,15 @@ export const metadata: Metadata = {
 
 // Runs before paint via a blocking inline script so the correct theme applies
 // immediately — without this, the page would flash the wrong theme on load
-// while the client component in ThemeToggle hydrates.
+// while the client component in ThemeToggle hydrates. Always defaults to
+// "dark" when nothing is stored yet — the site no longer follows the
+// visitor's OS color-scheme preference for the first paint, only an
+// explicit choice made via ThemeToggle.
 const themeInitScript = `
 (function () {
   try {
     var stored = window.localStorage.getItem("design-os-theme");
-    var theme = stored || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    var theme = stored === "light" || stored === "dark" ? stored : "dark";
     document.documentElement.setAttribute("data-theme", theme);
   } catch (e) {}
 })();

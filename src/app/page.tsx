@@ -1,123 +1,195 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Download, Mail } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Marquee } from "@/components/patterns/marquee";
-import { Reveal } from "@/components/patterns/reveal";
-import { CareerJourney } from "@/components/patterns/career-journey";
-import { profile, marqueeSkills, careerJourney, careerStats } from "@/lib/content";
+import { Hero } from "@/components/patterns/hero";
+import { SectionBlock } from "@/components/patterns/section-block";
+import { ShowcaseProjectCard } from "@/components/patterns/showcase-project-card";
+import { CareerTimeline } from "@/components/patterns/career-timeline";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
+import {
+  TwinxHeroArt,
+  EuroclearHeroArt,
+  ProductionWorkflowHeroArt,
+  MckToolsHeroArt,
+} from "@/components/patterns/case-study-hero-art";
+import {
+  profile,
+  careerJourney,
+  careerStats,
+  projects,
+  skillGroups,
+  funFacts,
+} from "@/lib/content";
+
+const TOTAL_SECTIONS = "06";
+
+// Rendered here (a Server Component) and passed down as elements, not
+// component references — a component *type* isn't serializable across the
+// server/client boundary into ShowcaseProjectCard (a Client Component);
+// the rendered result is.
+const FEATURED_HERO_ART: Record<string, ReactNode> = {
+  "twinx-ai-platform": <TwinxHeroArt />,
+  "euroclear-bank": <EuroclearHeroArt />,
+  "production-workflow-revamp": <ProductionWorkflowHeroArt />,
+  "mck-tools": <MckToolsHeroArt />,
+};
+
+const featuredProjects = projects.filter((p) => p.featured);
 
 export default function Home() {
   return (
     <>
-      {/* Hero */}
-      <section className="flex flex-col gap-10 px-6 py-16 md:px-16 md:py-28">
-        <div className="flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
-          <div className="flex max-w-2xl flex-col gap-6">
-            <p className="font-mono text-xs tracking-[0.2em] text-accent uppercase">
-              {profile.location} &middot; Available for select engagements
-            </p>
-            <h1 className="font-display text-5xl leading-[1.05] font-extrabold text-fg md:text-7xl">
-              {profile.name}
-            </h1>
-            <p className="font-display text-xl font-medium text-fg-muted md:text-2xl">
-              {profile.role} — {profile.yearsExperience}+ years
-            </p>
-            <p className="max-w-xl text-base leading-relaxed text-fg-muted md:text-lg">
-              {profile.heroSummary}
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Button asChild size="lg">
-                <Link href="/projects">
-                  View Work <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg">
-                <Link href="/resume">
-                  Download Resume <Download className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="lg">
-                <Link href="/contact">
-                  Contact <Mail className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-          </div>
+      <Hero
+        profile={{
+          name: profile.name,
+          role: profile.role,
+          yearsExperience: profile.yearsExperience,
+          heroSummary: profile.heroSummary,
+          location: profile.location,
+        }}
+      />
 
-          <div className="relative size-40 shrink-0 overflow-hidden rounded-full border border-border bg-bg-surface md:size-52">
-            <Image
-              src="/images/profile.jpg"
-              alt={`${profile.name}, ${profile.role}`}
-              fill
-              sizes="(min-width: 768px) 13rem, 10rem"
-              className="object-cover object-[center_25%]"
-              priority
-            />
-          </div>
-        </div>
-      </section>
+      <SectionBlock
+        index="01"
+        total={TOTAL_SECTIONS}
+        eyebrow="How I work"
+        title="Design philosophy"
+        description="Three ideas that show up in almost every project below."
+      >
+        <StaggerGroup className="grid gap-px border border-border bg-border md:grid-cols-3">
+          {profile.philosophy.map((item) => (
+            <StaggerItem key={item.title} className="flex flex-col gap-3 bg-bg p-7">
+              <span className="text-meta text-accent">{item.title}</span>
+              <p className="text-sm leading-relaxed text-fg-muted">{item.body}</p>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </SectionBlock>
 
-      {/* Skills marquee */}
-      <section className="border-y border-border py-6" aria-label="Skills and tools">
-        <Marquee items={marqueeSkills} />
-      </section>
+      <SectionBlock
+        index="02"
+        total={TOTAL_SECTIONS}
+        eyebrow="Selected work"
+        title="Case studies"
+        description="Enterprise AI, financial infrastructure, and internal tooling — from research through shipped design systems."
+      >
+        <StaggerGroup className="grid gap-6 md:grid-cols-2" stagger={0.08}>
+          {featuredProjects.map((project, i) => (
+            <StaggerItem key={project.slug}>
+              <ShowcaseProjectCard
+                project={project}
+                index={i}
+                heroArt={FEATURED_HERO_ART[project.slug]}
+              />
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+        <Reveal variant="up">
+          <Button asChild variant="secondary" size="lg" className="self-start">
+            <Link href="/projects">
+              View all projects <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </Button>
+        </Reveal>
+      </SectionBlock>
 
-      {/* Career Journey */}
-      <Reveal>
-        <section className="flex flex-col gap-10 px-6 py-16 md:px-16">
-          <div className="flex flex-col gap-3">
-            <h2 className="font-display text-2xl font-extrabold text-fg md:text-3xl">
-              Career Journey
-            </h2>
-            <p className="max-w-2xl text-sm leading-relaxed text-fg-muted md:text-base">
-              A decade of designing enterprise experiences, solving complex business problems, and
-              building scalable digital products.
-            </p>
-          </div>
+      <SectionBlock
+        index="03"
+        total={TOTAL_SECTIONS}
+        eyebrow="A decade of practice"
+        title="Career journey"
+        description="Designing enterprise experiences, solving complex business problems, and building scalable digital products."
+      >
+        <CareerTimeline milestones={careerJourney} />
 
-          <CareerJourney milestones={careerJourney} />
-
-          <div className="flex flex-col gap-6 border-t border-border pt-10">
+        <Reveal variant="up">
+          <div className="grid-line-t flex flex-col gap-6 pt-10">
             <div className="flex flex-wrap gap-10">
               <div className="flex flex-col gap-1.5">
-                <span className="font-display text-3xl font-extrabold text-accent md:text-4xl">
-                  {careerStats.years}
-                </span>
-                <span className="text-sm text-fg-muted">Years Experience</span>
+                <span className="text-display-md text-accent">{careerStats.years}</span>
+                <span className="text-meta text-fg-muted">Years Experience</span>
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="font-display text-3xl font-extrabold text-accent md:text-4xl">
-                  {careerStats.organizations}
-                </span>
-                <span className="text-sm text-fg-muted">Organizations</span>
+                <span className="text-display-md text-accent">{careerStats.organizations}</span>
+                <span className="text-meta text-fg-muted">Organizations</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {careerStats.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-border px-3.5 py-1.5 font-mono text-xs tracking-[0.05em] text-fg-muted uppercase"
+                  className="text-meta border border-border px-3 py-1.5 text-fg-muted"
                 >
                   {tag}
                 </span>
               ))}
             </div>
           </div>
-        </section>
-      </Reveal>
+        </Reveal>
+      </SectionBlock>
 
-      {/* Testimonials — honest placeholder, no fabricated quotes */}
-      <Reveal>
-        <section className="flex flex-col gap-6 border-t border-border px-6 py-16 md:px-16">
-          <h2 className="font-display text-2xl font-extrabold text-fg md:text-3xl">Testimonials</h2>
-          <div className="rounded-md border border-dashed border-border bg-bg-surface p-8 text-center">
-            <p className="text-sm text-fg-muted">
-              Client and colleague testimonials are being collected and will appear here soon.
-            </p>
-          </div>
-        </section>
-      </Reveal>
+      <SectionBlock
+        index="04"
+        total={TOTAL_SECTIONS}
+        eyebrow="Toolkit"
+        title="Capabilities"
+        description="What I bring to a project, end to end."
+      >
+        <div className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
+          {skillGroups.map((group, gi) => (
+            <Reveal key={group.label} variant="up" delay={gi * 0.06}>
+              <div className="flex flex-col gap-1">
+                <span className="text-meta mb-3 text-accent">{group.label}</span>
+                {group.items.map((item) => (
+                  <span
+                    key={item}
+                    className="grid-line-t block py-2.5 text-sm text-fg-muted transition-all duration-300 hover:translate-x-2 hover:text-fg md:text-base"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </SectionBlock>
+
+      <SectionBlock
+        index="05"
+        total={TOTAL_SECTIONS}
+        eyebrow="Beyond the résumé"
+        title="About"
+        description={profile.aboutIntro}
+      >
+        <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
+          <StaggerGroup className="flex flex-col gap-4">
+            {funFacts.map((fact) => (
+              <StaggerItem
+                key={fact}
+                className="grid-line-t pt-4 text-sm leading-relaxed text-fg-muted"
+              >
+                {fact}
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+          <Reveal variant="up">
+            <Button asChild variant="secondary" size="lg" className="self-start">
+              <Link href="/about">
+                More about me <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </Reveal>
+        </div>
+      </SectionBlock>
+
+      <SectionBlock index="06" total={TOTAL_SECTIONS} eyebrow="Testimonials" title="Kind words">
+        <Reveal variant="up">
+          <p className="border border-dashed border-border p-8 text-sm text-fg-muted">
+            Client and colleague testimonials are being collected and will appear here soon.
+          </p>
+        </Reveal>
+      </SectionBlock>
     </>
   );
 }

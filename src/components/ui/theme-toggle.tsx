@@ -8,19 +8,16 @@ import { cn } from "@/lib/utils";
 // Binary light/dark (not the 3-state auto/dark/light cycle used in the
 // Phase 9 review mockup) — a real toggle needs a definite on/off semantic
 // for screen readers (aria-checked), which a 3-state cycle button can't
-// express cleanly. Persists the choice; falls back to the OS preference
-// (prefers-color-scheme, already wired in styles/theme.css) when unset.
+// express cleanly. Persists the choice; defaults to dark (not the OS
+// prefers-color-scheme) when unset, matching layout.tsx's themeInitScript.
 const STORAGE_KEY = "design-os-theme";
+const DEFAULT_THEME: Theme = "dark";
 
 type Theme = "light" | "dark";
 
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute("data-theme", theme);
   window.localStorage.setItem(STORAGE_KEY, theme);
-}
-
-function getSystemTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
 export interface ThemeToggleProps extends Omit<
@@ -40,16 +37,16 @@ function ThemeToggle({ className, ...props }: ThemeToggleProps) {
     // React's own docs call out as legitimate; the lint rule doesn't
     // distinguish it from an unjustified cascading-render pattern.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme((window.localStorage.getItem(STORAGE_KEY) as Theme | null) ?? getSystemTheme());
+    setTheme((window.localStorage.getItem(STORAGE_KEY) as Theme | null) ?? DEFAULT_THEME);
   }, []);
 
   const toggle = () => {
-    const next: Theme = (theme ?? getSystemTheme()) === "dark" ? "light" : "dark";
+    const next: Theme = (theme ?? DEFAULT_THEME) === "dark" ? "light" : "dark";
     setTheme(next);
     applyTheme(next);
   };
 
-  const isDark = (theme ?? "dark") === "dark";
+  const isDark = (theme ?? DEFAULT_THEME) === "dark";
 
   return (
     <button

@@ -41,12 +41,12 @@ body {
   --font-sans: var(--font-body);
   --font-heading: var(--font-display);
 
-  /* Radius scale — Phase 6 specifies --radius-sm/md/lg; shadcn expects a
-     wider scale for some components, derived from the same --radius-md
-     base rather than a separate, undocumented value. */
-  --radius-md: 6px;
-  --radius-sm: 3px;
-  --radius-lg: 10px;
+  /* Radius scale — tightened for the black-canvas redesign: sharp, technical
+     corners rather than soft SaaS-card rounding. shadcn's wider scale is
+     still derived from the same --radius-md base. */
+  --radius-md: 3px;
+  --radius-sm: 2px;
+  --radius-lg: 5px;
   --radius-xl: calc(var(--radius-md) * 1.4);
   --radius-2xl: calc(var(--radius-md) * 1.8);
   --radius-3xl: calc(var(--radius-md) * 2.2);
@@ -71,5 +71,73 @@ body {
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+/* ============================================================
+   Typography system — Swiss-editorial scale. Fluid via clamp()
+   so headline sizes don't need per-breakpoint overrides everywhere.
+   ============================================================ */
+
+/* Hero-scale statements only — one or two per page. */
+.text-display-xl {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  font-size: clamp(2.75rem, 1.6rem + 6vw, 7.5rem);
+}
+
+/* Section headings. */
+.text-display-lg {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-size: clamp(2rem, 1.5rem + 2.2vw, 3.75rem);
+}
+
+/* Card / sub-section titles. */
+.text-display-md {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-size: clamp(1.375rem, 1.2rem + 0.8vw, 2rem);
+}
+
+/* Metadata / labels / coordinates / technical annotations. */
+.text-meta {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+/* ============================================================
+   Structural grid language — thin rules, coordinate marks, canvas
+   lines. Every hairline in the site should reference these two
+   tokens (styles/theme.css) rather than an ad hoc border color.
+   ============================================================ */
+
+.grid-line-t {
+  border-top: 1px solid var(--color-grid-line);
+}
+.grid-line-b {
+  border-bottom: 1px solid var(--color-grid-line);
+}
+
+/* Faint full-bleed rule grid — used as a section backdrop texture. */
+.grid-overlay {
+  background-image:
+    linear-gradient(to right, var(--color-grid-line-subtle) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid-line-subtle) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

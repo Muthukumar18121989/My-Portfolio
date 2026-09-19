@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Continuous Health — An independent product concept</title>
+<meta name="description" content="Continuous Health — an independent product concept exploring how a mature health ecosystem might evolve from measurement into interpretation. Not an Apple product.">
+<meta name="theme-color" content="#05070C">
+
+<style>
+  *, *::before, *::after{ box-sizing: border-box; }
+
+  :root{
+    /* A single, deliberate visual world: the "midnight" of the brief. */
+    --midnight:   #05070C;
+    --graphite:   #0B0F17;
+    --elevated:   #121722;
+    --raised:     #1A202C;
+    --starlight:  #F2EFE8;
+    --titanium:   #9296A0;
+    --titanium-dim:#7C818C;   /* 5.2:1 on midnight — WCAG AA for body text */
+    --hairline:   rgba(242,239,232,.11);
+    --hairline-2: rgba(242,239,232,.06);
+
+    --mauve:  #7E6074;
+    --rose:   #E25478;
+    --amber:  #FFB67C;
+    --warm:   #FFD2B0;
+
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+
+    --gut: clamp(20px, 5vw, 80px);
+    --measure: 62ch;
+  }
+
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior: auto; } }
+
+  body{
+    margin: 0;
+    background: var(--midnight);
+    color: var(--starlight);
+    font-family: var(--display);
+    font-size: clamp(16px, 1.05vw, 18px);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection{ background: rgba(226,84,120,.32); }
+
+  a{ color: inherit; }
+  :focus-visible{
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .skip{
+    position: absolute; left: -9999px; top: 0; z-index: 100;
+    background: var(--starlight); color: var(--midnight);
+    padding: .7em 1.2em; font-family: var(--mono); font-size: .8rem;
+    letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+  }
+  .skip:focus{ left: 12px; top: 12px; }
+
+  /* ================= Nav ================= */
+
+  .nav{
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem var(--gut);
+    background: rgba(5,7,12,.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 300ms ease, background 300ms ease;
+  }
+  .nav.stuck{ border-bottom-color: var(--hairline-2); }
+  .nav__mark{
+    font-family: var(--mono); font-size: .70rem; letter-spacing: .34em;
+    text-transform: uppercase; text-decoration: none; white-space: nowrap;
+  }
+  .nav__links{
+    display: flex; gap: clamp(.9rem, 2vw, 2rem);
+    list-style: none; margin: 0; padding: 0;
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  .nav__links a{ color: var(--titanium); text-decoration: none; transition: color 200ms ease; }
+  .nav__links a:hover{ color: var(--starlight); }
+  @media (max-width: 860px){ .nav__links{ display: none; } }
+
+  /* ================= Layout primitives ================= */
+
+  section{ padding: clamp(90px, 13vh, 170px) var(--gut); position: relative; }
+  .wrap{ max-width: 1180px; margin: 0 auto; width: 100%; }
+  .narrow{ max-width: 760px; }
+
+  .eyebrow{
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .30em;
+    text-transform: uppercase; color: var(--titanium-dim);
+    margin: 0 0 1.6rem;
+    display: flex; align-items: center; gap: .9em;
+  }
+  .eyebrow::before{
+    content:""; width: 26px; height: 1px; background: var(--rose); flex: none;
+  }
+
+  h1, h2, h3{ margin: 0; text-wrap: balance; }
+
+  h1{
+    font-size: clamp(2.9rem, 8.2vw, 6.6rem);
+    font-weight: 600; line-height: 1.02; letter-spacing: -.028em;
+  }
+  h2{
+    font-size: clamp(2rem, 4.4vw, 3.5rem);
+    font-weight: 600; line-height: 1.08; letter-spacing: -.024em;
+  }
+  h3{
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    font-weight: 600; letter-spacing: -.012em;
+  }
+
+  .lede{
+    font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+    font-weight: 400; line-height: 1.45; letter-spacing: -.014em;
+    color: var(--titanium); max-width: var(--measure);
+    margin: 1.7rem 0 0;
+  }
+  p{ max-width: var(--measure); }
+  .body{ color: var(--titanium); margin: 1.2rem 0 0; }
+  .warmtext{ color: var(--warm); }
+
+  .rule{ height:1px; background: var(--hairline); border: 0; margin: 0; }
+
+  /* ================= Reveal ================= */
+
+  .r{ opacity: 0; transform: translateY(18px); transition: opacity 900ms cubic-bezier(.2,.7,.25,1), transform 900ms cubic-bezier(.2,.7,.25,1); }
+  .r.in{ opacity: 1; transform: none; }
+  .r2{ transition-delay: 110ms; }
+  .r3{ transition-delay: 220ms; }
+  .r4{ transition-delay: 330ms; }
+  @media (prefers-reduced-motion: reduce){
+    .r{ opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ================= Hero ================= */
+
+  #hero{
+    min-height: 100dvh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding-top: clamp(110px, 16vh, 180px);
+    position: relative; overflow: hidden;
+  }
+  #heroCanvas{
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
+  }
+  /* scrim so the mark never competes with the headline for legibility */
+  #hero::before{
+    content:""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(95deg,
+      var(--midnight) 0%,
+      rgba(5,7,12,.94) 26%,
+      rgba(5,7,12,.55) 46%,
+      transparent 66%);
+  }
+  #hero .wrap{ position: relative; z-index: 2; }
+  .hero__sub{
+    font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+    color: var(--titanium); margin: 1.8rem 0 0; max-width: 34ch;
+  }
+  .scrollcue{
+    position: absolute; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
+    z-index: 2;
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .28em;
+    text-transform: uppercase; color: var(--titanium-dim); z-index: 1;
+    display: flex; flex-direction: column; align-items: center; gap: .7rem;
+  }
+  .scrollcue span{ width:1px; height: 34px; background: linear-gradient(var(--titanium-dim), transparent); }
+
+  /* ================= Stat / figure blocks ================= */
+
+  .stats{
+    display: grid; gap: 1px; background: var(--hairline-2);
+    grid-template-columns: repeat(2, 1fr);   /* 2x2, never orphans the fourth */
+    border: 1px solid var(--hairline-2); margin-top: 3.4rem;
+  }
+  @media (min-width: 1080px){ .stats{ grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 560px){ .stats{ grid-template-columns: 1fr; } }
+  .stat{ background: var(--graphite); padding: 2rem 1.7rem; }
+  .stat__n{
+    font-size: clamp(2.2rem, 4vw, 3.1rem); font-weight: 600;
+    letter-spacing: -.03em; line-height: 1;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(100deg, var(--rose), var(--amber));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat__l{ margin: .9rem 0 0; font-size: .93rem; color: var(--titanium); max-width: none; }
+  .stat__c{
+    margin: 1rem 0 0; font-family: var(--mono); font-size: .63rem;
+    letter-spacing: .11em; color: var(--titanium-dim); max-width: none;
+  }
+
+  /* ================= Cards ================= */
+
+  .grid{ display: grid; gap: 1.4rem; margin-top: 3.2rem; }
+  .g2{ grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .g3{ grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+  .card{
+    background: var(--graphite);
+    border: 1px solid var(--hairline-2);
+    border-radius: 14px;
+    padding: 1.9rem;
+  }
+  .card h3{ margin-bottom: .7rem; }
+  .card p{ color: var(--titanium); margin: 0; font-size: .96rem; max-width: none; }
+  .card__k{
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--titanium-dim);
+    display: block; margin-bottom: 1.1rem;
+  }
+
+  /* ================= Numbered list (real sequence) ================= */
+
+  .qs{ list-style: none; margin: 3rem 0 0; padding: 0; display: grid; gap: 1px; background: var(--hairline-2); border-block: 1px solid var(--hairline-2); }
+  .qs li{
+    background: var(--midnight); padding: 1.6rem .2rem;
+    display: flex; gap: clamp(1rem, 3vw, 2.6rem); align-items: baseline;
+  }
+  .qs .n{
+    font-family: var(--mono); font-size: .68rem; color: var(--rose);
+    letter-spacing: .1em; flex: none; padding-top: .35em;
+  }
+  .qs .q{ font-size: clamp(1.3rem, 2.6vw, 2rem); font-weight: 600; letter-spacing: -.02em; }
+  .qs .a{ color: var(--titanium); font-size: .95rem; margin: .35rem 0 0; max-width: 46ch; }
+
+  /* ================= Continuity dial ================= */
+
+  .dial{ display: flex; flex-wrap: wrap; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; margin-top: 3.4rem; }
+  .dial__c{ flex: none; }
+  .dial__legend{ flex: 1 1 340px; display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
+  .dial__legend li{ display: flex; gap: .9rem; align-items: flex-start; font-size: .95rem; color: var(--titanium); }
+  .dot{ width: 9px; height: 9px; border-radius: 50%; flex: none; margin-top: .5em; }
+
+  /* ================= Devices ================= */
+
+  .devices{ display: grid; gap: 1px; background: var(--hairline-2); border: 1px solid var(--hairline-2); margin-top: 3.2rem; border-radius: 14px; overflow: hidden; }
+  .dev{ background: var(--graphite); padding: 1.7rem; display: grid; grid-template-columns: minmax(120px, 190px) 1fr auto; gap: 1.5rem; align-items: center; }
+  .dev__n{ font-weight: 600; }
+  .dev__r{ color: var(--titanium); font-size: .94rem; margin: 0; max-width: none; }
+  .dev__t{ font-family: var(--mono); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: var(--titanium-dim); white-space: nowrap; }
+  @media (max-width: 720px){ .dev{ grid-template-columns: 1fr; gap: .5rem; } }
+
+  /* ================= Phone mockups ================= */
+
+  .phones{
+    display: flex; gap: clamp(1rem, 2.4vw, 2rem); margin-top: 3.4rem;
+    overflow-x: auto; padding-bottom: 1.4rem;
+    scroll-snap-type: x mandatory;
+  }
+  .phone{
+    flex: none; width: 262px; scroll-snap-align: center;
+    background: linear-gradient(170deg, var(--elevated), var(--graphite));
+    border: 1px solid var(--hairline);
+    border-radius: 34px; padding: 1.15rem 1rem 1.3rem;
+    box-shadow: 0 24px 50px -22px rgba(0,0,0,.8);
+  }
+  .phone__bar{
+    display:flex; justify-content: space-between; align-items:center;
+    font-family: var(--mono); font-size: .55rem; letter-spacing: .1em;
+    color: var(--titanium-dim); padding: 0 .5rem .9rem;
+  }
+  .phone__t{ font-size: .95rem; font-weight: 600; padding: 0 .5rem; }
+  .phone__s{ font-size: .74rem; color: var(--titanium-dim); padding: .15rem .5rem 1rem; font-family: var(--mono); letter-spacing: .06em; }
+
+  .metric{
+    background: rgba(242,239,232,.035);
+    border: 1px solid var(--hairline-2);
+    border-radius: 14px; padding: .95rem 1rem; margin-bottom: .6rem;
+  }
+  .metric__h{ display:flex; justify-content: space-between; align-items: baseline; gap: .6rem; }
+  .metric__l{ font-family: var(--mono); font-size: .56rem; letter-spacing: .16em; text-transform: uppercase; color: var(--titanium-dim); }
+  .metric__v{ font-size: 1.65rem; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .metric__v.good{ color: var(--amber); }
+  .metric__d{ font-size: .74rem; color: var(--titanium); margin: .45rem 0 0; line-height: 1.45; max-width: none; }
+  .metric__bar{ height: 3px; background: rgba(242,239,232,.09); border-radius: 2px; margin-top: .7rem; overflow: hidden; }
+  .metric__bar i{ display:block; height: 100%; background: linear-gradient(90deg, var(--rose), var(--amber)); border-radius: 2px; }
+
+  .conf{
+    display:flex; align-items:center; gap: .45rem;
+    font-family: var(--mono); font-size: .53rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--titanium-dim); margin-top: .7rem;
+  }
+  .conf b{ display:flex; gap: 2px; }
+  .conf i{ width: 4px; height: 4px; border-radius: 50%; background: rgba(242,239,232,.18); }
+  .conf i.on{ background: var(--amber); }
+
+  .tabbar{
+    display:flex; justify-content: space-between; gap:.3rem;
+    border-top: 1px solid var(--hairline-2); margin-top: 1rem; padding: .8rem .3rem 0;
+    font-family: var(--mono); font-size: .49rem; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--titanium-dim);
+  }
+  .tabbar .on{ color: var(--amber); }
+
+  /* ================= Open question ================= */
+
+  .open{
+    border: 1px solid var(--hairline);
+    border-left: 2px solid var(--rose);
+    border-radius: 4px;
+    background: linear-gradient(100deg, rgba(226,84,120,.055), transparent 60%);
+    padding: 1.8rem 2rem;
+    margin-top: 2.6rem;
+  }
+  .open__k{
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--rose); margin: 0 0 .9rem; max-width: none;
+  }
+  .open p{ margin: 0; color: var(--titanium); }
+  .open p + p{ margin-top: .9rem; }
+
+  /* ================= Sources ================= */
+
+  .sources{ list-style: none; margin: 2.6rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+  .sources li{
+    font-size: .84rem; color: var(--titanium-dim); line-height: 1.55;
+    padding-left: 1.6rem; position: relative; max-width: 80ch;
+  }
+  .sources li::before{
+    content: counter(list-item); position: absolute; left: 0; top: .1em;
+    font-family: var(--mono); font-size: .62rem; color: var(--rose);
+  }
+  .sources a{ color: var(--titanium); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(146,150,160,.35); }
+  .sources a:hover{ color: var(--starlight); }
+
+  /* ================= Footer ================= */
+
+  footer{
+    padding: clamp(60px, 8vh, 90px) var(--gut) clamp(40px, 6vh, 60px);
+    border-top: 1px solid var(--hairline-2);
+  }
+  .foot__grid{ display:flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; align-items: flex-start; }
+  .foot__mark{ font-family: var(--mono); font-size: .7rem; letter-spacing: .34em; text-transform: uppercase; }
+  .fineprint{
+    font-size: .8rem; color: var(--titanium-dim); line-height: 1.6;
+    max-width: 62ch; margin: 1.4rem 0 0; text-wrap: pretty;
+  }
+
+  /* Cross-link to the Band product page (added with concept v1.1). */
+  .nav__links a.nav__cta{ color: var(--amber); white-space: nowrap; }
+  @media (max-width: 860px){
+    .nav__links{ display: flex; margin-left: auto; }
+    .nav__links li:not(.nav__keep){ display: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="nav" id="nav" aria-label="Primary">
+  <a class="nav__mark" href="#hero">Continuous&nbsp;Health</a>
+  <ul class="nav__links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#ecosystem">Ecosystem</a></li>
+    <li><a href="#platform">Platform</a></li>
+    <li><a href="#ai">Intelligence</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#app">App</a></li>
+    <li><a href="#about">About</a></li>
+    <li class="nav__keep"><a class="nav__cta" href="band.html">Band&nbsp;&rarr;</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section id="hero">
+    <canvas id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <p class="eyebrow r">Continuous Health &middot; Concept v1.0</p>
+      <h1 class="r r2">One continuous<br><span class="warmtext">understanding.</span></h1>
+      <p class="hero__sub r r3">The future of health isn&rsquo;t one wearable. It&rsquo;s one continuous understanding of the person.</p>
+    </div>
+    <p class="scrollcue" aria-hidden="true"><span></span>Scroll</p>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section id="problem">
+    <div class="wrap">
+      <p class="eyebrow r">01 &middot; The problem</p>
+      <h2 class="r r2">Health tracking stops<br>when the device does.</h2>
+      <p class="lede r r3">
+        Every wearable record has holes in it. Not because the sensors fail &mdash;
+        because the device has to come off.
+      </p>
+
+      <div class="dial r r3">
+        <div class="dial__c"><canvas id="dayDial" width="300" height="300" aria-hidden="true"></canvas></div>
+        <ul class="dial__legend">
+          <li><span class="dot" style="background:var(--amber)"></span><span><strong>Worn &mdash; 18&nbsp;hours.</strong> Apple&rsquo;s own figure for a day of normal use on Apple&nbsp;Watch&nbsp;SE&nbsp;3.</span></li>
+          <li><span class="dot" style="background:var(--rose)"></span><span><strong>Asleep &mdash; 6&nbsp;hours.</strong> On Series&nbsp;11, the quoted 24&nbsp;hours <em>includes</em> these six. Sleep tracking doesn&rsquo;t extend the day; it consumes it.</span></li>
+          <li><span class="dot" style="background:#3A3F4B"></span><span><strong>Charging &mdash; the gap.</strong> 30&ndash;75&nbsp;minutes that has to come out of the same cycle. Whatever happens in it is not recorded.</span></li>
+        </ul>
+      </div>
+
+      <div class="grid g3">
+        <div class="card r"><span class="card__k">Behaviour</span><h3>The watch comes off</h3><p>For charging, for a shower, for a formal watch, for a night when you just don&rsquo;t want it. Each removal is a hole in the record.</p></div>
+        <div class="card r r2"><span class="card__k">Consequence</span><h3>Baselines get noisy</h3><p>A trend built on intermittent data is a weaker trend. Gaps don&rsquo;t just lose hours &mdash; they degrade everything inferred from the surrounding ones.</p></div>
+        <div class="card r r3"><span class="card__k">Response</span><h3>People stop bothering</h3><p>Roughly a third of owners abandon the device altogether &mdash; not from breakage, but because it never became useful enough to be worth the friction.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ RESEARCH ============ -->
+  <section id="research">
+    <div class="wrap">
+      <p class="eyebrow r">02 &middot; Research</p>
+      <h2 class="r r2">What the evidence<br>actually says.</h2>
+      <p class="lede r r3">
+        Four findings from published work. Together they argue that the missing
+        layer isn&rsquo;t another sensor &mdash; it&rsquo;s interpretation against a personal baseline.
+      </p>
+
+      <div class="stats r r3">
+        <div class="stat">
+          <p class="stat__n">69 bpm</p>
+          <p class="stat__l">The spread between the lowest and highest <em>normal</em> resting heart rate across 92,457 adults. One person&rsquo;s healthy is another person&rsquo;s alarming.</p>
+          <p class="stat__c">Quer et al., PLOS ONE, 2020</p>
+        </div>
+        <div class="stat">
+          <p class="stat__n">&le; 10%</p>
+          <p class="stat__l">How much of that spread age, sex, BMI and sleep duration explain <em>combined</em>. Population norms cannot tell you what is normal for you.</p>
+          <p class="stat__c">Quer et al., PLOS ONE, 2020</p>
+        </div>
+        <div class="stat">
+          <p class="stat__n">3 bpm</p>
+          <p class="stat__l">Median week-to-week variation <em>within</em> one person. Individuals are remarkably stable &mdash; which is exactly what makes deviation meaningful.</p>
+          <p class="stat__c">Quer et al., PLOS ONE, 2020</p>
+        </div>
+        <div class="stat">
+          <p class="stat__n">29&ndash;52%</p>
+          <p class="stat__l">How often six consumer wearables correctly identified <em>wake</em> against clinical polysomnography &mdash; while detecting sleep 92&ndash;96% of the time.</p>
+          <p class="stat__c">Schyvens et al., SLEEP Advances, 2025</p>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card r">
+          <span class="card__k">Reading 1</span>
+          <h3>The population average is the wrong unit</h3>
+          <p>Two healthy adults can differ by 69&nbsp;bpm at rest, and demographics explain almost none of it. Yet the same adult varies by only about 3&nbsp;bpm week to week. The signal is not in where you sit against everyone else &mdash; it&rsquo;s in where you sit against yourself last month.</p>
+        </div>
+        <div class="card r r2">
+          <span class="card__k">Reading 2</span>
+          <h3>Confidence is not uniform, so it should be shown</h3>
+          <p>Sleep-stage agreement with clinical polysomnography ranged from &kappa;&nbsp;0.21 to 0.53 &mdash; fair to moderate. These devices know reliably that you slept. They are markedly less reliable about <em>how</em>. A product that presents both with equal certainty is misrepresenting itself.</p>
+        </div>
+      </div>
+
+      <div class="open r">
+        <p class="open__k">Where this evidence is thin</p>
+        <p>
+          The abandonment figure most often quoted &mdash; 29% of smartwatches, 30% of fitness
+          trackers &mdash; comes from a Gartner survey of 9,592 people conducted in 2016. It is a
+          decade old and predates most modern health features. It is cited here as directional,
+          not current.
+        </p>
+        <p>
+          No primary user research has been conducted for this concept. The user-need claims
+          below are reasoned from the published work above, not from interviews. Validating
+          them with real participants is the first thing this project should do next.
+        </p>
+      </div>
+
+      <ol class="sources r">
+        <li>Quer G, Gouda P, Galarnyk M, Topol EJ, Steinhubl SR. <em>Inter- and intraindividual variability in daily resting heart rate&hellip;: retrospective, longitudinal cohort study of 92,457 adults.</em> PLOS ONE 15(2): e0227709, 2020. <a href="https://doi.org/10.1371/journal.pone.0227709">doi:10.1371/journal.pone.0227709</a></li>
+        <li>Schyvens A-M, Peters B, Van Oost NC, et al. <em>A performance validation of six commercial wrist-worn wearable sleep-tracking devices for sleep stage scoring compared to polysomnography.</em> SLEEP Advances 6(2): zpaf021, 2025. <a href="https://doi.org/10.1093/sleepadvances/zpaf021">doi:10.1093/sleepadvances/zpaf021</a></li>
+        <li>Apple Inc. <em>Apple Watch &mdash; Battery.</em> Manufacturer specification; testing conducted July&ndash;August 2025. <a href="https://www.apple.com/watch/battery/">apple.com/watch/battery</a></li>
+        <li>Gartner Inc. <em>2016 Personal Technologies Study</em>, 9,592 respondents across Australia, the US and the UK. Reported abandonment: smartwatches 29%, fitness trackers 30%.</li>
+      </ol>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ VISION ============ -->
+  <section id="vision">
+    <div class="wrap narrow">
+      <p class="eyebrow r">03 &middot; Vision</p>
+      <h2 class="r r2">Four questions.<br>Nothing else.</h2>
+      <p class="lede r r3">
+        Most health apps answer a fifth question nobody asked: <em>what are all your
+        numbers?</em> This one is built to answer only these, in this order.
+      </p>
+      <ol class="qs r r3">
+        <li><span class="n">01</span><div><p class="q">How am I today?</p><p class="a">One state, stated plainly, before any metric is shown.</p></div></li>
+        <li><span class="n">02</span><div><p class="q">What changed?</p><p class="a">Only deviations from your own baseline. If nothing moved, say nothing.</p></div></li>
+        <li><span class="n">03</span><div><p class="q">Why?</p><p class="a">The contributing signals, named, with how confident the system is in each.</p></div></li>
+        <li><span class="n">04</span><div><p class="q">What should I do?</p><p class="a">One recommendation. Never a list. Never a diagnosis.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ ECOSYSTEM ============ -->
+  <section id="ecosystem">
+    <div class="wrap">
+      <p class="eyebrow r">04 &middot; Ecosystem</p>
+      <h2 class="r r2">The advantage isn&rsquo;t a device.<br>It&rsquo;s having several.</h2>
+      <p class="lede r r3">
+        No single product needs to cover the whole day. Coverage is a property of the
+        ecosystem &mdash; if the handoffs between devices are treated as a designed behaviour
+        rather than an accident.
+      </p>
+      <div class="devices r r3">
+        <div class="dev"><span class="dev__n">Apple&nbsp;Watch</span><p class="dev__r">The primary instrument. Highest fidelity, broadest sensor set, and the anchor every other signal is calibrated against.</p><span class="dev__t">Anchor</span></div>
+        <div class="dev"><span class="dev__n">iPhone</span><p class="dev__r">Always present even when nothing is worn. Movement, routine, screen patterns, location context &mdash; low resolution, near-total coverage.</p><span class="dev__t">Continuity</span></div>
+        <div class="dev"><span class="dev__n">AirPods</span><p class="dev__r">In-ear during workouts, commutes and calls. Already positioned at one of the better sites on the body for heart-rate and temperature sensing.</p><span class="dev__t">Opportunistic</span></div>
+        <div class="dev"><span class="dev__n">Passive companion</span><p class="dev__r">An unresolved concept &mdash; see below. Intended to cover the window when nothing else is worn, without becoming another thing to charge.</p><span class="dev__t">Unresolved</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ PLATFORM ============ -->
+  <section id="platform">
+    <div class="wrap">
+      <p class="eyebrow r">05 &middot; Continuous Health</p>
+      <h2 class="r r2">One record,<br>assembled from many.</h2>
+      <p class="lede r r3">
+        Continuous Health is the layer that stitches partial signals into a single
+        continuous account of a person &mdash; and is honest about which parts are inferred.
+      </p>
+      <div class="grid g3">
+        <div class="card r"><span class="card__k">Principle 01</span><h3>Continuity over isolated tracking</h3><p>A gap is a first-class fact. The system knows what it doesn&rsquo;t know, marks it, and never quietly interpolates across it as though it were measured.</p></div>
+        <div class="card r r2"><span class="card__k">Principle 02</span><h3>Insights before dashboards</h3><p>The default view is a sentence, not a grid. Numbers exist, one level down, for the moments you want them.</p></div>
+        <div class="card r r3"><span class="card__k">Principle 03</span><h3>Personal baseline before averages</h3><p>Everything is expressed relative to your own history. Population norms appear only where they are genuinely informative, and are labelled as such.</p></div>
+        <div class="card r"><span class="card__k">Principle 04</span><h3>Calm technology</h3><p>Silence is the default state. The system earns each interruption, and a day with nothing to report produces nothing to read.</p></div>
+        <div class="card r r2"><span class="card__k">Principle 05</span><h3>Privacy by design</h3><p>Baseline modelling and inference run on-device. What leaves the device is stated in plain language, per signal, and is off unless turned on.</p></div>
+        <div class="card r r3"><span class="card__k">Principle 06</span><h3>Confidence is part of the answer</h3><p>Every inference carries how sure the system is. Where the evidence is fair rather than strong, the interface says so instead of rounding up.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ AI ============ -->
+  <section id="ai">
+    <div class="wrap narrow">
+      <p class="eyebrow r">06 &middot; Intelligence</p>
+      <h2 class="r r2">It explains.<br>It never diagnoses.</h2>
+      <p class="lede r r3">
+        The hard constraint is regulatory as much as ethical: interpretation of wellness
+        signals is a different category from medical diagnosis, and the line has to be
+        visible in the interface, not just the terms of service.
+      </p>
+      <div class="grid g2">
+        <div class="card r"><h3>Learns your baseline</h3><p>Four to six weeks of your own data before any deviation is called meaningful. Until then the system says it is still learning.</p></div>
+        <div class="card r r2"><h3>Explains its reasoning</h3><p>Every recommendation names the signals behind it. No unexplained score movements.</p></div>
+        <div class="card r"><h3>Shows its confidence</h3><p>Derived from measurement reliability. Sleep duration is reported with more certainty than sleep stage, because the evidence supports exactly that difference.</p></div>
+        <div class="card r r2"><h3>Defers to clinicians</h3><p>Sustained anomalies produce a prompt to seek care and an exportable summary &mdash; never a conclusion.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ HARDWARE ============ -->
+  <section id="hardware">
+    <div class="wrap narrow">
+      <p class="eyebrow r">07 &middot; Hardware</p>
+      <h2 class="r r2">The companion,<br>and its paradox.</h2>
+      <p class="lede r r3">
+        The concept proposes a lightweight passive wearable to cover the window when the
+        Watch is off. Stated plainly, that idea has a hole in it.
+      </p>
+      <div class="open r r3">
+        <p class="open__k">Unresolved &mdash; stated rather than hidden</p>
+        <p>
+          A companion that senses needs a power source. A power source needs charging.
+          Charging reintroduces exactly the gap the companion exists to close &mdash; only now
+          across two devices instead of one.
+        </p>
+        <p>
+          There are credible ways out: multi-week battery at drastically reduced sampling,
+          a two-piece design where one half charges while the other is worn, or harvesting
+          rather than storing power. Each carries a real cost in fidelity, price, or bulk.
+          None has been chosen here.
+        </p>
+        <p>
+          A second constraint shapes the answer. This concept&rsquo;s own competitive read gives
+          sleep to Oura &mdash; a ring. A ring-shaped companion would meet that competitor at
+          its strongest point, in precisely the overnight window that motivates the device.
+        </p>
+      </div>
+      <p class="body r">
+        So the form factor is deliberately undefined at this stage. Resolving the power
+        question is what should determine the shape &mdash; not the other way round.
+      </p>
+      <p class="body r">
+        <strong class="warmtext">Answered in v1.1.</strong> The power question was taken first,
+        as this section argued it should be: no display, coarse adaptive sampling, and a charge
+        window scheduled to sit inside the hours the watch is reliably worn. The shape followed
+        from that budget. &rarr; <a href="band.html" style="text-decoration:underline;text-underline-offset:3px">See the Band</a>
+      </p>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ APP ============ -->
+  <section id="app">
+    <div class="wrap">
+      <p class="eyebrow r">08 &middot; App experience</p>
+      <h2 class="r r2">Five places.<br>One question each.</h2>
+      <p class="lede r r3">
+        Recovery and Sleep are not destinations &mdash; they are what Home is made of.
+        That keeps the tab bar at five and stops the app becoming the dashboard it argues against.
+      </p>
+
+      <div class="phones r r3">
+
+        <div class="phone">
+          <div class="phone__bar"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+          <p class="phone__t">Today</p>
+          <p class="phone__s">Tue 14 Apr</p>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">How you are</span></div>
+            <p class="metric__v good">Recovered</p>
+            <p class="metric__d">You&rsquo;re back to your normal after three lighter days. Nothing needs attention.</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Recovery</span><span class="metric__v" style="font-size:1.1rem">82</span></div>
+            <div class="metric__bar"><i style="width:82%"></i></div>
+            <p class="metric__d">HRV +8% over baseline &middot; resting HR 54 (&minus;2) &middot; sleep debt cleared</p>
+            <p class="conf">Confidence <b><i class="on"></i><i class="on"></i><i class="on"></i><i></i></b> High</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Sleep</span><span class="metric__v" style="font-size:1.1rem">7h 24m</span></div>
+            <p class="metric__d">Duration measured. Stage breakdown estimated &mdash; treat as indicative.</p>
+            <p class="conf">Confidence <b><i class="on"></i><i class="on"></i><i></i><i></i></b> Moderate</p>
+          </div>
+          <div class="tabbar"><span class="on">Home</span><span>Insights</span><span>Timeline</span><span>Devices</span><span>Profile</span></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone__bar"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+          <p class="phone__t">Insights</p>
+          <p class="phone__s">What changed &middot; Why</p>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Observation</span></div>
+            <p class="metric__d" style="font-size:.86rem;color:var(--starlight)">Your resting heart rate has run 4&ndash;6&nbsp;bpm above your own baseline for five nights.</p>
+            <p class="metric__d">That is outside your usual 3&nbsp;bpm week-to-week range. It began the night your sleep dropped below 6 hours.</p>
+            <p class="conf">Confidence <b><i class="on"></i><i class="on"></i><i class="on"></i><i></i></b> High</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">What to do</span></div>
+            <p class="metric__d" style="font-size:.86rem;color:var(--warm)">Protect sleep for two nights and see whether it settles.</p>
+            <p class="metric__d">If it stays elevated past a week, that&rsquo;s worth mentioning to a clinician. This is not a diagnosis.</p>
+          </div>
+          <div class="tabbar"><span>Home</span><span class="on">Insights</span><span>Timeline</span><span>Devices</span><span>Profile</span></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone__bar"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+          <p class="phone__t">Timeline</p>
+          <p class="phone__s">Last 12 months</p>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Your story</span></div>
+            <p class="metric__d" style="font-size:.86rem;color:var(--starlight)">Your baseline resting heart rate fell 6&nbsp;bpm across the spring, then held.</p>
+            <p class="metric__d">Periods of coverage and gaps are both shown. Gaps are never filled in.</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Coverage</span><span class="metric__v" style="font-size:1.1rem">91%</span></div>
+            <div class="metric__bar"><i style="width:91%"></i></div>
+            <p class="metric__d">33 days with partial or no data, marked rather than estimated.</p>
+          </div>
+          <div class="tabbar"><span>Home</span><span>Insights</span><span class="on">Timeline</span><span>Devices</span><span>Profile</span></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone__bar"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+          <p class="phone__t">Devices</p>
+          <p class="phone__s">Who is contributing now</p>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Apple Watch</span><span class="metric__v good" style="font-size:.9rem">Worn</span></div>
+            <p class="metric__d">Full sensor set &middot; 68% battery &middot; anchor signal</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">iPhone</span><span class="metric__v" style="font-size:.9rem;color:var(--titanium)">Carried</span></div>
+            <p class="metric__d">Movement and routine only &middot; continuity cover</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">AirPods</span><span class="metric__v" style="font-size:.9rem;color:var(--titanium-dim)">Idle</span></div>
+            <p class="metric__d">Contributes during workouts and calls</p>
+          </div>
+          <div class="tabbar"><span>Home</span><span>Insights</span><span>Timeline</span><span class="on">Devices</span><span>Profile</span></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone__bar"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+          <p class="phone__t">Profile</p>
+          <p class="phone__s">What leaves this device</p>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">On-device</span><span class="metric__v good" style="font-size:.9rem">All</span></div>
+            <p class="metric__d">Baseline modelling, deviation detection and phrasing of insights run locally. Nothing is uploaded to produce them.</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Shared</span><span class="metric__v" style="font-size:.9rem;color:var(--titanium)">Nothing</span></div>
+            <p class="metric__d">Per-signal sharing is off until you turn it on, and is listed one signal at a time in plain language.</p>
+          </div>
+          <div class="metric">
+            <div class="metric__h"><span class="metric__l">Export</span></div>
+            <p class="metric__d">A clinician-readable summary you generate, review and send yourself.</p>
+          </div>
+          <div class="tabbar"><span>Home</span><span>Insights</span><span>Timeline</span><span>Devices</span><span class="on">Profile</span></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ FUTURE ============ -->
+  <section id="future">
+    <div class="wrap narrow">
+      <p class="eyebrow r">09 &middot; What comes next</p>
+      <h2 class="r r2">The honest<br>order of work.</h2>
+      <p class="lede r r3">
+        This is a concept, not a plan of record. If it were taken further, this is the
+        sequence that would make it credible.
+      </p>
+      <ol class="qs r r3">
+        <li><span class="n">01</span><div><p class="q">Talk to people</p><p class="a">Primary research with real participants on removal behaviour, charging habits, and what guidance they actually want. Nothing here rests on that yet.</p></div></li>
+        <li><span class="n">02</span><div><p class="q">Define the recovery model</p><p class="a">Name the inputs, weightings and confidence bounds. A score nobody can explain is a number, not an insight.</p></div></li>
+        <li><span class="n">03</span><div><p class="q">Resolve the power question</p><p class="a">Settle the companion&rsquo;s energy budget first. The form follows from it.</p></div></li>
+        <li><span class="n">04</span><div><p class="q">Test the silence</p><p class="a">The hardest claim to validate is that saying less builds more trust. That needs evidence, not assertion.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="wrap narrow">
+      <p class="eyebrow r">10 &middot; About</p>
+      <h2 class="r r2">An independent<br>concept.</h2>
+      <p class="lede r r3">
+        Continuous Health is a self-directed product and design exercise by
+        Muthukumar&nbsp;D, exploring how a mature health ecosystem might evolve from
+        measurement into interpretation.
+      </p>
+      <p class="body r r3">
+        It is not affiliated with Apple, was not commissioned by Apple, and describes no
+        product Apple has announced. Apple products are named throughout because the
+        argument is specifically about that ecosystem &mdash; the concept does not make sense
+        stated generically.
+      </p>
+      <p class="body r r3">
+        Every quantitative claim on this page is sourced. Where evidence is missing or
+        dated, that is marked rather than smoothed over &mdash; including the fact that no
+        primary user research has been conducted for this concept.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot__grid">
+    <div>
+      <p class="foot__mark">Continuous&nbsp;Health</p>
+      <p class="fineprint">Concept v1.0 &middot; 2026 &middot; Muthukumar&nbsp;D</p>
+    </div>
+    <p class="fineprint">
+      An independent product concept. Not affiliated with, authorized by, or endorsed by
+      Apple&nbsp;Inc. Apple, Apple&nbsp;Watch, AirPods, iPhone and Apple&nbsp;Intelligence
+      are trademarks of Apple&nbsp;Inc., referenced here for identification only. Oura,
+      WHOOP and Garmin are trademarks of their respective owners. Interface mockups are
+      illustrative; figures shown in them are examples, not measurements.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- scroll reveals ---------- */
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries){
+      if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+  document.querySelectorAll('.r').forEach(el => io.observe(el));
+
+  /* ---------- nav hairline ---------- */
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('stuck', window.scrollY > 24);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ================= Hero ring ================= */
+  (function heroRing(){
+    const cv = document.getElementById('heroCanvas');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    let W = 0, H = 0, progress = reduce ? 1 : 0, t0 = null;
+
+    const TURNS = 2.35, SEGMENTS = 1100, CELLS = 46;
+    const C0 = [126,96,116], C1 = [226,84,120], C2 = [255,182,124];
+
+    const ss = (a,b,x) => { const t = Math.min(1, Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+    const hash = n => { const s = Math.sin(n*127.1)*43758.5453; return s - Math.floor(s); };
+    const mix = (a,b,k) => a + (b-a)*k;
+    const easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    function colour(t){
+      let a, b;
+      if (t < .5){ a = C0; b = C1; t = t/.5; } else { a = C1; b = C2; t = (t-.5)/.5; }
+      return [Math.round(mix(a[0],b[0],t)), Math.round(mix(a[1],b[1],t)), Math.round(mix(a[2],b[2],t))];
+    }
+
+    /* placed to the right of the headline on wide screens, behind it on narrow */
+    function centre(){
+      return W > 1000 ? { x: W*0.72, y: H*0.46 } : { x: W*0.62, y: H*0.30 };
+    }
+    function R(){ return Math.min(W,H) * (W > 1000 ? 0.30 : 0.26); }
+    const radius = t => R() * (1 + 1.0*Math.pow(1-t, 1.8));
+    const angle  = t => -Math.PI*0.62 + 2*Math.PI*TURNS*t;
+    function point(t){
+      const c = centre(), r = radius(t), a = angle(t);
+      return { x: c.x + r*Math.cos(a), y: c.y + r*Math.sin(a) };
+    }
+    const cont = t => ss(0.05, 0.80, t);
+
+    function resize(){
+      const r = cv.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = r.width; H = r.height;
+      cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      draw();
+    }
+
+    function draw(){
+      if (!W || !H) return;
+      ctx.clearRect(0,0,W,H);
+      const base = Math.max(1, Math.min(W,H)*0.0085);
+      const c = centre(), rr = R();
+
+      const amb = ctx.createRadialGradient(c.x,c.y,rr*0.3,c.x,c.y,rr*2.1);
+      amb.addColorStop(0,'rgba(255,150,100,'+(0.085*progress).toFixed(3)+')');
+      amb.addColorStop(1,'rgba(255,150,100,0)');
+      ctx.fillStyle = amb; ctx.fillRect(0,0,W,H);
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+      let run = [];
+      const flush = () => {
+        if (run.length < 2){ run = []; return; }
+        const mt = run[Math.floor(run.length/2)].t;
+        const cc = cont(mt), rgb = colour(mt);
+        const alpha = 0.24 + 0.76*cc, lw = base*(0.55 + 0.45*cc);
+        const trace = () => {
+          ctx.beginPath(); ctx.moveTo(run[0].x, run[0].y);
+          for (let i=1;i<run.length;i++) ctx.lineTo(run[i].x, run[i].y);
+        };
+        [[7,0.07],[3,0.17],[1,0.92]].forEach(([m,a]) => {
+          trace();
+          ctx.strokeStyle = 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+(alpha*a).toFixed(3)+')';
+          ctx.lineWidth = lw*m; ctx.stroke();
+        });
+        if (cc > 0.55){
+          trace();
+          ctx.strokeStyle = 'rgba(255,242,228,'+(0.5*(cc-0.55)/0.45).toFixed(3)+')';
+          ctx.lineWidth = lw*0.34; ctx.stroke();
+        }
+        run = [];
+      };
+
+      for (let i=0;i<SEGMENTS;i++){
+        const t = i/(SEGMENTS-1);
+        if (t > progress) break;
+        const cc = cont(t);
+        if (hash(Math.floor(t*CELLS)) < (0.30 + 0.70*cc)){
+          const p = point(t); run.push({ t:t, x:p.x, y:p.y });
+        } else flush();
+      }
+      flush();
+
+      const ap = ss(0.92, 1, progress);
+      if (ap > 0){
+        const p = point(1), rad = base*10*ap;
+        const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);
+        g.addColorStop(0,'rgba(255,214,178,'+(0.6*ap).toFixed(3)+')');
+        g.addColorStop(0.35,'rgba(255,160,110,'+(0.22*ap).toFixed(3)+')');
+        g.addColorStop(1,'rgba(255,160,110,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x,p.y,rad,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,248,240,'+(0.95*ap).toFixed(3)+')';
+        ctx.beginPath(); ctx.arc(p.x,p.y,base*0.85,0,Math.PI*2); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function frame(ts){
+      if (t0 === null) t0 = ts;
+      const k = Math.min(1, (ts - t0)/2900);
+      progress = easeInOut(k);
+      draw();
+      if (k < 1) requestAnimationFrame(frame);
+    }
+
+    new ResizeObserver(resize).observe(cv);
+    resize();
+    if (!reduce) requestAnimationFrame(frame);
+  })();
+
+  /* ================= 24-hour continuity dial ================= */
+  (function dayDial(){
+    const cv = document.getElementById('dayDial');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const S = 300;
+    cv.width = S*dpr; cv.height = S*dpr;
+    cv.style.width = S+'px'; cv.style.height = S+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const cx = S/2, cy = S/2, r = S*0.36, lw = 16;
+
+    /* 24h: 18h worn, 6h asleep(also worn), ~1h charging gap.
+       Series 11's quoted 24h already includes the 6 sleep hours,
+       so the charge window is carved out of the same cycle. */
+    const arcs = [
+      { from: 0,    to: 17.0, colour: '#FFB67C', label: 'worn'     },
+      { from: 17.0, to: 18.0, colour: '#3A3F4B', label: 'charging' },
+      { from: 18.0, to: 24.0, colour: '#E25478', label: 'asleep'   }
+    ];
+
+    function a(h){ return -Math.PI/2 + (h/24)*Math.PI*2; }
+
+    let p = 0;
+    function draw(){
+      ctx.clearRect(0,0,S,S);
+
+      /* track */
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle = 'rgba(242,239,232,.05)'; ctx.lineWidth = lw; ctx.stroke();
+
+      for (const seg of arcs){
+        const end = seg.from + (seg.to - seg.from)*p;
+        if (end <= seg.from) continue;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, a(seg.from), a(end));
+        ctx.strokeStyle = seg.colour;
+        ctx.lineWidth = lw;
+        ctx.lineCap = 'butt';
+        ctx.stroke();
+      }
+
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#F2EFE8';
+      ctx.font = '600 30px -apple-system, "Segoe UI", system-ui, sans-serif';
+      ctx.fillText('24h', cx, cy - 8);
+      ctx.fillStyle = '#6A6F7A';
+      ctx.font = '400 10px ui-monospace, "Cascadia Mono", monospace';
+      ctx.fillText('ONE CHARGE CYCLE', cx, cy + 16);
+    }
+
+    if (reduce){ p = 1; draw(); return; }
+
+    let t0 = null, started = false;
+    const io2 = new IntersectionObserver((es) => {
+      for (const e of es){
+        if (e.isIntersecting && !started){
+          started = true;
+          requestAnimationFrame(function step(ts){
+            if (t0 === null) t0 = ts;
+            const k = Math.min(1, (ts - t0)/1500);
+            p = 1 - Math.pow(1-k, 3);
+            draw();
+            if (k < 1) requestAnimationFrame(step);
+          });
+        }
+      }
+    }, { threshold: 0.3 });
+    io2.observe(cv);
+    draw();
+  })();
+})();
+</script>
+
+</body>
+</html>
