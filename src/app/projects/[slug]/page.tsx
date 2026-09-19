@@ -54,6 +54,9 @@ export async function generateMetadata({
   return {
     title: project.title,
     description: project.summary,
+    // Private projects shouldn't turn up in search results even though the
+    // page itself is gated — keep them out of the index entirely.
+    robots: project.visibility === "private" ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -150,8 +153,15 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
     </div>
   );
 
-  return (
-    <div className="flex flex-col gap-16 px-6 py-20 md:px-16 md:py-28">
+  // Everything below is gated as one unit for private projects (see the
+  // return statement) — the page used to only gate the screenshots grid,
+  // leaving the title, company, role, impact figures, and every case-study
+  // section readable by anyone with the URL, including via the homepage's
+  // own "Selected Work" cards, which link straight to it. "private" now
+  // means the whole page, matching what the Project type's own doc comment
+  // already claimed it meant.
+  const body = (
+    <>
       {/* Hero */}
       <div className="grid-line-t flex flex-col gap-6 pt-10">
         <Link
@@ -242,22 +252,33 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       {CustomCaseStudy && <CustomCaseStudy />}
 
       {/* Screenshots — heading defaults to "Application Screens" but is
-          overridable per project (e.g. hardware renders aren't app UI).
-          Gated only for private projects — per the Project type's own
-          documented contract, "public" means no gate. */}
+          overridable per project (e.g. hardware renders aren't app UI). No
+          gate here anymore: private projects are gated once, for the whole
+          page, below — not re-gated per section. */}
       {project.screenshots.length > 0 && (
         <Reveal variant="up">
           <section className="grid-line-t flex flex-col gap-6 pt-10">
             <h2 className="text-display-md text-fg">
               {project.screenshotsHeading ?? "Application Screens"}
             </h2>
-            {project.visibility === "private" ? (
-              <RecruiterGate>{screenshotsGrid}</RecruiterGate>
-            ) : (
-              screenshotsGrid
-            )}
+            {screenshotsGrid}
           </section>
         </Reveal>
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-16 px-6 py-20 md:px-16 md:py-28">
+      {project.visibility === "private" ? (
+        <RecruiterGate
+          password="viewrecruiter"
+          message={`"${project.title}" is a private case study, shared with recruiters on request. Enter the access password to view it.`}
+        >
+          {body}
+        </RecruiterGate>
+      ) : (
+        body
       )}
     </div>
   );
