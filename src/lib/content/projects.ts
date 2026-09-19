@@ -168,6 +168,10 @@ export const projects: Project[] = [
           "Reduced user effort and improved productivity through AI-assisted workflows.",
       },
     ],
+    heroImage: {
+      src: "/images/projects/twinx-ai-platform/banner.png",
+      alt: "TwinX AI Platform — enterprise digital twin dashboard with live simulation and an AI copilot panel",
+    },
     screenshotStyle: "laptop",
     sections: {
       overview: {
@@ -249,6 +253,10 @@ export const projects: Project[] = [
       "35% fewer navigation steps across core reporting workflows",
       "UX decisions formally aligned with regulatory requirements via structured stakeholder workshops",
     ],
+    heroImage: {
+      src: "/images/projects/euroclear-bank/banner.png",
+      alt: "Euroclear Bank Platform — general ledger and financial reporting dashboard with compliance checks",
+    },
     sections: {
       overview: {
         heading: "Overview",
@@ -338,8 +346,8 @@ export const projects: Project[] = [
       "A working information architecture spanning onboarding, digital wardrobe, outfit planning, and settings",
     ],
     heroImage: {
-      src: "/images/projects/virtual-personal-stylist/cover.png",
-      alt: "Virtual Personal Stylist app splash screen on a phone",
+      src: "/images/projects/virtual-personal-stylist/banner.png",
+      alt: "Virtual Personal Stylist app — wardrobe, outfit builder, and style recommendation screens",
     },
     screenshotStyle: "contain",
     sections: {
@@ -459,6 +467,10 @@ export const projects: Project[] = [
       "Redesigned McKinsey's legacy IBM-based production management platform into a modern workflow experience for the global presentation production team.",
     featured: true,
     visibility: "private",
+    heroImage: {
+      src: "/images/projects/production-workflow-revamp/banner.png",
+      alt: "Production Workflow Revamp — legacy transaction-processing interface next to the modernized work board",
+    },
     impact: [
       "Directional 42% faster request assignment",
       "Directional 35% fewer clicks to complete a task",
@@ -534,6 +546,10 @@ export const projects: Project[] = [
       "Designing an enterprise PowerPoint productivity suite that streamlined slide creation and automated repetitive consultant workflows.",
     featured: true,
     visibility: "private",
+    heroImage: {
+      src: "/images/projects/mck-tools/banner.png",
+      alt: "McK Tools — PowerPoint add-in task pane with profile and icon library tabs docked beside a slide",
+    },
     impact: [
       "Reduced manual copy-paste effort building consultant-facing slides",
       "Faster consultant profile creation, without leaving PowerPoint",

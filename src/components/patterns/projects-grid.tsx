@@ -1,11 +1,43 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Search, Globe, Lock } from "lucide-react";
 import { ProjectCard } from "@/components/patterns/project-card";
 import { RecruiterGate } from "@/components/patterns/recruiter-gate";
+import {
+  TwinxHeroArt,
+  EuroclearHeroArt,
+  ProductionWorkflowHeroArt,
+  MckToolsHeroArt,
+} from "@/components/patterns/case-study-hero-art";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/lib/content";
+
+// Per-project cover art for the grid card — the same hand-drawn hero art
+// used on each case-study page for projects without a real product image,
+// so a card never falls back to the generic accent-dot placeholder.
+const COVER_ART: Record<string, React.ReactNode> = {
+  "twinx-ai-platform": <TwinxHeroArt />,
+  "euroclear-bank": <EuroclearHeroArt />,
+  "production-workflow-revamp": <ProductionWorkflowHeroArt />,
+  "mck-tools": <MckToolsHeroArt />,
+};
+
+function getCover(project: Project) {
+  if (project.heroImage) {
+    return (
+      <Image
+        src={project.heroImage.src}
+        alt={project.heroImage.alt}
+        fill
+        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+        className="object-cover"
+      />
+    );
+  }
+  return COVER_ART[project.slug];
+}
 
 export interface ProjectsGridProps {
   projects: Project[];
@@ -55,6 +87,7 @@ function ProjectsGrid({ projects }: ProjectsGridProps) {
             role={project.role}
             type={project.type}
             description={project.summary}
+            cover={getCover(project)}
           />
         ))}
       </div>

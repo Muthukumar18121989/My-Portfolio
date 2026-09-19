@@ -50,7 +50,7 @@ function ProjectCard({
 }: ProjectCardProps) {
   const content = (
     <>
-      <div className="flex aspect-[16/9] items-center justify-center bg-bg">
+      <div className="relative flex aspect-[16/9] items-center justify-center overflow-hidden bg-bg">
         {locked ? (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-locked px-2.5 py-1 font-mono text-[0.625rem] tracking-[0.1em] text-locked uppercase">
             <Lock className="size-3" aria-hidden="true" />

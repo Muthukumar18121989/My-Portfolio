@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero } from "@/components/patterns/hero";
@@ -20,20 +21,39 @@ import {
   projects,
   skillGroups,
   funFacts,
+  type Project,
 } from "@/lib/content";
 
 const TOTAL_SECTIONS = "06";
 
-// Rendered here (a Server Component) and passed down as elements, not
-// component references — a component *type* isn't serializable across the
-// server/client boundary into ShowcaseProjectCard (a Client Component);
-// the rendered result is.
-const FEATURED_HERO_ART: Record<string, ReactNode> = {
+// Fallback abstract hero art for featured projects that don't have a real
+// banner image yet.
+const FALLBACK_HERO_ART: Record<string, ReactNode> = {
   "twinx-ai-platform": <TwinxHeroArt />,
   "euroclear-bank": <EuroclearHeroArt />,
   "production-workflow-revamp": <ProductionWorkflowHeroArt />,
   "mck-tools": <MckToolsHeroArt />,
 };
+
+// Rendered here (a Server Component) and passed down as elements, not
+// component references — a component *type* isn't serializable across the
+// server/client boundary into ShowcaseProjectCard (a Client Component);
+// the rendered result is. Prefers each project's real heroImage, falling
+// back to the abstract SVG art only when one hasn't been supplied.
+function getFeaturedArt(project: Project): ReactNode {
+  if (project.heroImage) {
+    return (
+      <Image
+        src={project.heroImage.src}
+        alt={project.heroImage.alt}
+        fill
+        sizes="(min-width: 768px) 50vw, 100vw"
+        className="object-cover"
+      />
+    );
+  }
+  return FALLBACK_HERO_ART[project.slug];
+}
 
 const featuredProjects = projects.filter((p) => p.featured);
 
@@ -77,11 +97,7 @@ export default function Home() {
         <StaggerGroup className="grid gap-6 md:grid-cols-2" stagger={0.08}>
           {featuredProjects.map((project, i) => (
             <StaggerItem key={project.slug}>
-              <ShowcaseProjectCard
-                project={project}
-                index={i}
-                heroArt={FEATURED_HERO_ART[project.slug]}
-              />
+              <ShowcaseProjectCard project={project} index={i} heroArt={getFeaturedArt(project)} />
             </StaggerItem>
           ))}
         </StaggerGroup>
