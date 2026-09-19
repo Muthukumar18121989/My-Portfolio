@@ -1,20 +1,12 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Hero } from "@/components/patterns/hero";
 import { SectionBlock } from "@/components/patterns/section-block";
-import { ShowcaseProjectCard } from "@/components/patterns/showcase-project-card";
+import { ProjectAccordion } from "@/components/patterns/project-accordion";
 import { CareerTimeline } from "@/components/patterns/career-timeline";
 import { AboutPortrait } from "@/components/patterns/about-portrait";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
-import {
-  TwinxHeroArt,
-  EuroclearHeroArt,
-  ProductionWorkflowHeroArt,
-  MckToolsHeroArt,
-} from "@/components/patterns/case-study-hero-art";
 import {
   profile,
   stats,
@@ -23,45 +15,26 @@ import {
   projects,
   skillGroups,
   funFacts,
-  type Project,
 } from "@/lib/content";
 
 const TOTAL_SECTIONS = "06";
 
-// Fallback abstract hero art for featured projects that don't have a real
-// banner image yet.
-const FALLBACK_HERO_ART: Record<string, ReactNode> = {
-  "twinx-ai-platform": <TwinxHeroArt />,
-  "euroclear-bank": <EuroclearHeroArt />,
-  "production-workflow-revamp": <ProductionWorkflowHeroArt />,
-  "mck-tools": <MckToolsHeroArt />,
-};
+// Curated order for the homepage's "Selected Work" index — deliberately
+// distinct from `project.featured` (which also governs the /projects grid):
+// this list adds Virtual Personal Stylist alongside the 4 featured
+// enterprise case studies. All fields shown come straight from the real
+// Project records in src/lib/content/projects.ts.
+const SELECTED_WORK_SLUGS = [
+  "twinx-ai-platform",
+  "euroclear-bank",
+  "virtual-personal-stylist",
+  "production-workflow-revamp",
+  "mck-tools",
+] as const;
 
-// Rendered here (a Server Component) and passed down as elements, not
-// component references — a component *type* isn't serializable across the
-// server/client boundary into ShowcaseProjectCard (a Client Component);
-// the rendered result is. Prefers each project's real heroImage, falling
-// back to the abstract SVG art only when one hasn't been supplied.
-function getFeaturedArt(project: Project): ReactNode {
-  if (project.heroImage) {
-    return (
-      // object-contain: these banners are wide (21:9) with headline text
-      // near the edges — object-cover was cropping that text off inside
-      // the card's narrower box. The letterboxing is invisible because the
-      // banners' own near-black background matches the card's bg-bg.
-      <Image
-        src={project.heroImage.src}
-        alt={project.heroImage.alt}
-        fill
-        sizes="(min-width: 768px) 50vw, 100vw"
-        className="object-contain"
-      />
-    );
-  }
-  return FALLBACK_HERO_ART[project.slug];
-}
-
-const featuredProjects = projects.filter((p) => p.featured);
+const selectedWorkProjects = SELECTED_WORK_SLUGS.map((slug) =>
+  projects.find((p) => p.slug === slug)
+).filter((p): p is (typeof projects)[number] => Boolean(p));
 
 export default function Home() {
   return (
@@ -100,20 +73,7 @@ export default function Home() {
         title="Case studies"
         description="Enterprise AI, financial infrastructure, and internal tooling — from research through shipped design systems."
       >
-        <StaggerGroup className="grid gap-6 md:grid-cols-2" stagger={0.08}>
-          {featuredProjects.map((project, i) => (
-            <StaggerItem key={project.slug}>
-              <ShowcaseProjectCard project={project} index={i} heroArt={getFeaturedArt(project)} />
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-        <Reveal variant="up">
-          <Button asChild variant="secondary" size="lg" className="self-start">
-            <Link href="/projects">
-              View all projects <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
-        </Reveal>
+        <ProjectAccordion projects={selectedWorkProjects} />
       </SectionBlock>
 
       <SectionBlock
