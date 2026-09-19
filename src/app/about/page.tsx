@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimelineItem } from "@/components/patterns/timeline-item";
 import { SectionBlock } from "@/components/patterns/section-block";
+import { AboutPortrait } from "@/components/patterns/about-portrait";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
 import {
   profile,
+  stats,
   experience,
   skillGroups,
   funFacts,
@@ -24,15 +26,41 @@ const TOTAL_SECTIONS = "05";
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col">
-      <section className="grid-line-t flex flex-col gap-6 px-6 py-20 md:px-16 md:py-28">
-        <h1 className="text-display-xl text-fg">
-          <WordReveal text="About" />
-        </h1>
-        <Reveal variant="up" delay={0.2}>
-          <p className="max-w-2xl text-base leading-relaxed text-fg-muted md:text-lg">
-            {profile.aboutIntro}
-          </p>
+    <div className="flex flex-col overflow-x-clip">
+      <section className="grid-line-t grid gap-14 px-6 py-20 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-16 md:px-16 md:py-28">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-3">
+            <span className="text-meta text-fg-muted">Get to know me</span>
+            <h1 className="text-display-xl text-fg">
+              <WordReveal text="About" />{" "}
+              <WordReveal text="Muthukumar" delay={0.25} className="text-accent" />
+            </h1>
+          </div>
+          <Reveal variant="up" delay={0.3}>
+            <p className="max-w-xl text-base leading-relaxed text-fg-muted md:text-lg">
+              {profile.aboutIntro}
+            </p>
+          </Reveal>
+          <Reveal variant="up" delay={0.4}>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+              {stats.map((stat) => (
+                <div key={stat.label} className="flex flex-col gap-1">
+                  <span className="text-display-md text-fg">{stat.value}</span>
+                  <span className="text-xs leading-snug text-fg-muted">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+          <Reveal variant="up" delay={0.5}>
+            <Button asChild size="lg" className="self-start">
+              <Link href="/contact">
+                Let&rsquo;s Connect <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </Reveal>
+        </div>
+        <Reveal variant="scale" delay={0.2}>
+          <AboutPortrait name={profile.name} />
         </Reveal>
       </section>
 

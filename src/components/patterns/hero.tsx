@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 import { ArrowRight, Download, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GridWave } from "@/components/canvas/grid-wave";
 import { CharReveal, WordReveal } from "@/components/motion/text-reveal";
+import { Reveal } from "@/components/motion/section-reveal";
 
 // The cinematic centerpiece: GridWave fills the section as a scroll-linked
 // background (useScroll + useTransform tie its scale/opacity to how far the
@@ -62,6 +64,19 @@ function Hero({ profile }: HeroProps) {
         style={shouldReduceMotion ? undefined : { y: contentY, opacity: contentOpacity }}
         className="relative z-10 flex flex-1 flex-col items-center justify-center gap-7 px-6 py-16 text-center md:px-16"
       >
+        <Reveal variant="scale">
+          <div className="relative size-20 overflow-hidden rounded-full border-2 border-border shadow-lg shadow-black/40 md:size-24">
+            <Image
+              src="/images/profile.jpg"
+              alt={profile.name}
+              fill
+              sizes="96px"
+              className="object-cover object-top grayscale contrast-125"
+              priority
+            />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-bg/50 via-transparent to-transparent" />
+          </div>
+        </Reveal>
         <h1 className="text-fg">
           <span className="block text-display-xl">
             <CharReveal text={profile.name} />
