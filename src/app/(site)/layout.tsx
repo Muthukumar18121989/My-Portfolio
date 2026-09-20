@@ -1,26 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Inter, JetBrains_Mono } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { NavBar } from "@/components/patterns/nav-bar";
 import { Footer } from "@/components/patterns/footer";
-import "./globals.css";
-
-// Type-role fonts: Geist for display/headlines, Inter for body text,
-// JetBrains Mono for metadata/labels/figure captions.
-const fontDisplay = Geist({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
-
-const fontBody = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const fontMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+import { fontDisplay, fontBody, fontMono } from "@/lib/fonts";
+import "../globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
