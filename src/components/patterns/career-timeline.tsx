@@ -5,7 +5,7 @@ import { motion, useScroll, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { MetadataChip } from "@/components/ui/metadata-chip";
 import { StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
-import type { CareerMilestone } from "@/lib/content";
+import type { CareerEntry } from "@/lib/content/types";
 
 // A single vertical line the length of the timeline, its scaleY bound to
 // scroll progress (useScroll target=this container) — the line "draws
@@ -29,7 +29,7 @@ function MilestoneNode({ current }: { current?: boolean }) {
   );
 }
 
-function MilestoneCard({ milestone }: { milestone: CareerMilestone }) {
+function MilestoneCard({ milestone }: { milestone: CareerEntry }) {
   return (
     <div className="flex flex-col gap-4 rounded-md border border-border bg-bg-surface p-6 shadow-lg shadow-black/30">
       <div className="flex items-start justify-between gap-3">
@@ -88,7 +88,7 @@ function MilestoneCard({ milestone }: { milestone: CareerMilestone }) {
 }
 
 export interface CareerTimelineProps {
-  milestones: CareerMilestone[];
+  milestones: CareerEntry[];
 }
 
 function CareerTimeline({ milestones }: CareerTimelineProps) {

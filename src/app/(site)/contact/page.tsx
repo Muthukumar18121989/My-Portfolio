@@ -3,19 +3,22 @@ import { Mail, MapPin, ExternalLink } from "lucide-react";
 import { ContactForm } from "@/components/patterns/contact-form";
 import { Reveal } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
-import { profile, socialLinks } from "@/lib/content";
+import { getProfile } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Get in touch with Muthukumar D.",
 };
 
-const contactLinks = [
-  { label: profile.email, href: socialLinks.email, icon: Mail },
-  { label: "LinkedIn", href: socialLinks.linkedin, icon: ExternalLink },
-].filter((link) => Boolean(link.href));
+export default async function ContactPage() {
+  const profile = await getProfile();
+  const contactLinks = [
+    { label: profile.email, href: `mailto:${profile.email}`, icon: Mail },
+    { label: "LinkedIn", href: profile.linkedinUrl, icon: ExternalLink },
+  ].filter((link): link is { label: string; href: string; icon: typeof Mail } =>
+    Boolean(link.href)
+  );
 
-export default function ContactPage() {
   return (
     <div className="grid-line-t grid gap-16 px-6 py-20 md:grid-cols-2 md:px-16 md:py-28">
       <div className="flex flex-col gap-6">

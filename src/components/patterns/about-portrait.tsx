@@ -60,10 +60,11 @@ function FloatingBadge({
 
 export interface AboutPortraitProps {
   name: string;
+  photoUrl?: string | null;
   className?: string;
 }
 
-function AboutPortrait({ name, className }: AboutPortraitProps) {
+function AboutPortrait({ name, photoUrl, className }: AboutPortraitProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -86,7 +87,7 @@ function AboutPortrait({ name, className }: AboutPortraitProps) {
 
       <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-full border border-border shadow-2xl shadow-black/50">
         <Image
-          src="/images/profile-dark.webp"
+          src={photoUrl || "/images/profile-dark.webp"}
           alt={name}
           fill
           sizes="(min-width: 768px) 24rem, 80vw"

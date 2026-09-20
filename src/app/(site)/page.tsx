@@ -3,16 +3,24 @@ import { SectionBlock } from "@/components/patterns/section-block";
 import { ProjectAccordion } from "@/components/patterns/project-accordion";
 import { CareerTimeline } from "@/components/patterns/career-timeline";
 import { AboutPreview } from "@/components/patterns/about-preview";
+import { TestimonialsGrid } from "@/components/patterns/testimonials-grid";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
-import { profile, careerJourney, careerStats, projects, skillGroups } from "@/lib/content";
+import {
+  getProfile,
+  getPhilosophy,
+  getCareerEntries,
+  getSiteSettings,
+  getSkillGroups,
+  getProjects,
+  getTestimonials,
+} from "@/lib/data";
 
 const TOTAL_SECTIONS = "06";
 
 // Curated order for the homepage's "Selected Work" index — deliberately
 // distinct from `project.featured` (which also governs the /projects grid):
 // this list adds Virtual Personal Stylist alongside the 4 featured
-// enterprise case studies. All fields shown come straight from the real
-// Project records in src/lib/content/projects.ts.
+// enterprise case studies.
 const SELECTED_WORK_SLUGS = [
   "twinx-ai-platform",
   "euroclear-bank",
@@ -21,11 +29,22 @@ const SELECTED_WORK_SLUGS = [
   "mck-tools",
 ] as const;
 
-const selectedWorkProjects = SELECTED_WORK_SLUGS.map((slug) =>
-  projects.find((p) => p.slug === slug)
-).filter((p): p is (typeof projects)[number] => Boolean(p));
+export default async function Home() {
+  const [profile, philosophy, careerEntries, siteSettings, skillGroups, projects, testimonials] =
+    await Promise.all([
+      getProfile(),
+      getPhilosophy(),
+      getCareerEntries(),
+      getSiteSettings(),
+      getSkillGroups(),
+      getProjects(),
+      getTestimonials(),
+    ]);
 
-export default function Home() {
+  const selectedWorkProjects = SELECTED_WORK_SLUGS.map((slug) =>
+    projects.find((p) => p.slug === slug)
+  ).filter((p): p is (typeof projects)[number] => Boolean(p));
+
   return (
     <>
       <Hero
@@ -46,8 +65,8 @@ export default function Home() {
         description="Three ideas that show up in almost every project below."
       >
         <StaggerGroup className="grid gap-px border border-border bg-border md:grid-cols-3">
-          {profile.philosophy.map((item) => (
-            <StaggerItem key={item.title} className="flex flex-col gap-3 bg-bg p-7">
+          {philosophy.map((item) => (
+            <StaggerItem key={item.id} className="flex flex-col gap-3 bg-bg p-7">
               <span className="text-meta text-accent">{item.title}</span>
               <p className="text-sm leading-relaxed text-fg-muted">{item.body}</p>
             </StaggerItem>
@@ -72,22 +91,22 @@ export default function Home() {
         title="Career journey"
         description="Designing enterprise experiences, solving complex business problems, and building scalable digital products."
       >
-        <CareerTimeline milestones={careerJourney} />
+        <CareerTimeline milestones={careerEntries} />
 
         <Reveal variant="up">
           <div className="grid-line-t flex flex-col gap-6 pt-10">
             <div className="flex flex-wrap gap-10">
               <div className="flex flex-col gap-1.5">
-                <span className="text-display-md text-accent">{careerStats.years}</span>
+                <span className="text-display-md text-accent">{profile.yearsExperience}+</span>
                 <span className="text-meta text-fg-muted">Years Experience</span>
               </div>
               <div className="flex flex-col gap-1.5">
-                <span className="text-display-md text-accent">{careerStats.organizations}</span>
+                <span className="text-display-md text-accent">{careerEntries.length}</span>
                 <span className="text-meta text-fg-muted">Organizations</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              {careerStats.tags.map((tag) => (
+              {siteSettings.careerTags.map((tag) => (
                 <span
                   key={tag}
                   className="text-meta border border-border px-3 py-1.5 text-fg-muted"
@@ -109,7 +128,7 @@ export default function Home() {
       >
         <div className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
           {skillGroups.map((group, gi) => (
-            <Reveal key={group.label} variant="up" delay={gi * 0.06}>
+            <Reveal key={group.id} variant="up" delay={gi * 0.06}>
               <div className="flex flex-col gap-1">
                 <span className="text-meta mb-3 text-accent">{group.label}</span>
                 {group.items.map((item) => (
@@ -126,14 +145,17 @@ export default function Home() {
         </div>
       </SectionBlock>
 
-      <AboutPreview index="05" total={TOTAL_SECTIONS} eyebrow="Beyond the résumé" />
+      <AboutPreview
+        index="05"
+        total={TOTAL_SECTIONS}
+        eyebrow="Beyond the résumé"
+        role={profile.role}
+        bioExcerpt={profile.aboutIntro.split(". ")[0] + "."}
+        skillGroups={skillGroups}
+      />
 
       <SectionBlock index="06" total={TOTAL_SECTIONS} eyebrow="Testimonials" title="Kind words">
-        <Reveal variant="up">
-          <p className="border border-dashed border-border p-8 text-sm text-fg-muted">
-            Client and colleague testimonials are being collected and will appear here soon.
-          </p>
-        </Reveal>
+        <TestimonialsGrid testimonials={testimonials} />
       </SectionBlock>
     </>
   );

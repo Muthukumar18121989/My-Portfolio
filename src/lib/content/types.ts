@@ -6,6 +6,96 @@ export interface TimelineEntry {
   relatedProjects?: { title: string; href: string }[];
 }
 
+// --- DB-backed content types (see supabase/schema.sql, src/lib/data.ts) ---
+
+export interface Profile {
+  name: string;
+  role: string;
+  roleLong: string;
+  location: string;
+  email: string;
+  yearsExperience: number;
+  heroSummary: string;
+  aboutIntro: string;
+  photoUrl: string | null;
+  linkedinUrl: string | null;
+}
+
+export interface PhilosophyItem {
+  id: string;
+  title: string;
+  body: string;
+  sortOrder: number;
+}
+
+export interface StatItem {
+  id: string;
+  value: string;
+  label: string;
+  sortOrder: number;
+}
+
+export interface FunFact {
+  id: string;
+  content: string;
+  sortOrder: number;
+}
+
+export interface SkillGroup {
+  id: string;
+  label: string;
+  items: string[];
+  sortOrder: number;
+}
+
+export interface Certification {
+  id: string;
+  content: string;
+  sortOrder: number;
+}
+
+export interface Education {
+  degree: string;
+  school: string;
+  dateRange: string;
+  detail: string;
+}
+
+/** Unified career-timeline row — feeds both the homepage's Career Journey
+    (needs the full shape) and /about's Professional Journey (uses a
+    subset: role/company/dateRange/achievements). One source, two views. */
+export interface CareerEntry {
+  id: string;
+  company: string;
+  initials: string;
+  role: string;
+  dateRange: string;
+  location: string;
+  current: boolean;
+  summary: string;
+  skills: string[];
+  responsibilities: string[];
+  achievements: string[];
+  sortOrder: number;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  quote: string;
+  avatarUrl: string | null;
+  published: boolean;
+  sortOrder: number;
+}
+
+export interface SiteSettings {
+  resumeUrl: string | null;
+  /** Short taglines under the homepage's Career Journey stats. */
+  careerTags: string[];
+}
+
 export interface CaseStudySection {
   heading: string;
   body: string;
@@ -24,6 +114,8 @@ export interface EnterpriseShowcaseCard {
 }
 
 export interface Project {
+  /** DB row id — used by the admin editor. Public pages key off `slug`. */
+  id: string;
   slug: string;
   title: string;
   company: string;

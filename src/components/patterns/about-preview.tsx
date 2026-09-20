@@ -7,16 +7,14 @@ import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
 import { DURATION, EASE_EDITORIAL, VIEWPORT_ONCE } from "@/lib/motion";
-import { profile, skillGroups } from "@/lib/content";
+import type { SkillGroup } from "@/lib/content/types";
 
 // The homepage's About section, deliberately kept to an intermission rather
 // than a preview of every /about detail: no portrait, no stat blocks, no
-// floating badges, no multi-paragraph bio — those stay on /about. What's
-// here is sourced from the same real content (profile.role, the first
-// sentence of profile.aboutIntro, the real skill-group taxonomy as a small
-// node diagram standing in for a photo) with nothing invented.
-
-const bioExcerpt = profile.aboutIntro.split(". ")[0] + ".";
+// floating badges, no multi-paragraph bio — those stay on /about. Content
+// (role, bio excerpt, skill-group taxonomy for the node diagram standing in
+// for a photo) is passed down from the page, which already fetched it from
+// Supabase — nothing invented, nothing fetched twice.
 
 function AnimatedRule({ delay = 0 }: { delay?: number }) {
   const shouldReduceMotion = useReducedMotion();
@@ -41,7 +39,7 @@ function AnimatedRule({ delay = 0 }: { delay?: number }) {
     Tools, Methods, AI Tools) as a small connected node column. A gentle
     cursor-proximity brighten on the nearest node — disabled entirely under
     prefers-reduced-motion — replaces any imagery. */
-function DisciplineNodes() {
+function DisciplineNodes({ skillGroups }: { skillGroups: SkillGroup[] }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const nodeRefs = React.useRef<Array<HTMLSpanElement | null>>([]);
   const shouldReduceMotion = useReducedMotion();
@@ -81,7 +79,7 @@ function DisciplineNodes() {
       className="flex flex-col"
     >
       {skillGroups.map((group, i) => (
-        <div key={group.label} className="relative flex items-center gap-4 py-3.5">
+        <div key={group.id} className="relative flex items-center gap-4 py-3.5">
           {i > 0 && (
             <span
               aria-hidden="true"
@@ -127,9 +125,12 @@ export interface AboutPreviewProps {
   index: string;
   total: string;
   eyebrow: string;
+  role: string;
+  bioExcerpt: string;
+  skillGroups: SkillGroup[];
 }
 
-function AboutPreview({ index, total, eyebrow }: AboutPreviewProps) {
+function AboutPreview({ index, total, eyebrow, role, bioExcerpt, skillGroups }: AboutPreviewProps) {
   const sectionRef = React.useRef<HTMLElement>(null);
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -162,7 +163,7 @@ function AboutPreview({ index, total, eyebrow }: AboutPreviewProps) {
             <span className="text-meta text-fg-muted">About</span>
           </Reveal>
           <Reveal variant="up" delay={0.25}>
-            <DisciplineNodes />
+            <DisciplineNodes skillGroups={skillGroups} />
           </Reveal>
         </div>
 
@@ -170,7 +171,7 @@ function AboutPreview({ index, total, eyebrow }: AboutPreviewProps) {
           <motion.div style={shouldReduceMotion ? undefined : { y: statementY }}>
             <Reveal variant="up" delay={0.25}>
               <h2 className="text-display-lg text-fg">
-                <WordReveal text={profile.role} delay={0.25} />
+                <WordReveal text={role} delay={0.25} />
               </h2>
             </Reveal>
           </motion.div>

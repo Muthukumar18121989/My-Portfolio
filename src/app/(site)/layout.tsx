@@ -3,7 +3,10 @@ import { MotionConfig } from "motion/react";
 import { NavBar } from "@/components/patterns/nav-bar";
 import { Footer } from "@/components/patterns/footer";
 import { fontDisplay, fontBody, fontMono } from "@/lib/fonts";
+import { getProfile } from "@/lib/data";
 import "../globals.css";
+
+export const dynamic = "force-dynamic";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -47,11 +50,13 @@ const themeInitScript = `
 })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const profile = await getProfile();
+
   return (
     <html
       lang="en"
@@ -73,7 +78,7 @@ export default function RootLayout({
           <main id="main-content" className="flex flex-1 flex-col">
             {children}
           </main>
-          <Footer />
+          <Footer linkedinUrl={profile.linkedinUrl} />
         </MotionConfig>
       </body>
     </html>

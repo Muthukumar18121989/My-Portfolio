@@ -18,8 +18,8 @@ import { EnterpriseProjectCard } from "@/components/patterns/enterprise-project-
 import { RecruiterGate } from "@/components/patterns/recruiter-gate";
 import { ProductionWorkflowCaseStudy } from "@/components/case-studies/production-workflow/case-study";
 import { MckToolsCaseStudy } from "@/components/case-studies/mck-tools/case-study";
-import { projects, getProjectBySlug } from "@/lib/content";
-import type { CaseStudySection } from "@/lib/content";
+import { getProjectBySlug } from "@/lib/data";
+import type { CaseStudySection, Project } from "@/lib/content/types";
 
 // The black-canvas visual system applied to the case-study frame — headings,
 // metadata, section rhythm, image treatment. The bespoke Production Workflow
@@ -39,9 +39,10 @@ const CUSTOM_CASE_STUDIES: Record<string, React.ComponentType> = {
   "mck-tools": MckToolsCaseStudy,
 };
 
-export function generateStaticParams() {
-  return projects.map((project) => ({ slug: project.slug }));
-}
+// No generateStaticParams — projects are managed live via the admin, so
+// this route renders dynamically (see the (site) layout's
+// `export const dynamic = "force-dynamic"`) rather than being pre-built
+// for a fixed set of slugs at build time.
 
 export async function generateMetadata({
   params,
@@ -49,7 +50,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) return {};
   return {
     title: project.title,
@@ -60,7 +61,7 @@ export async function generateMetadata({
   };
 }
 
-const SECTION_ORDER: (keyof (typeof projects)[number]["sections"])[] = [
+const SECTION_ORDER: (keyof Project["sections"])[] = [
   "overview",
   "problem",
   "myRole",
@@ -95,7 +96,7 @@ function Section({ section, index }: { section: CaseStudySection; index: number 
 
 export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) notFound();
   const HeroArt = HERO_ART[project.slug];
   const hasEnterpriseShowcase = Boolean(project.enterpriseShowcase?.length);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { profile } from "@/lib/content";
+import { getProfile } from "@/lib/data";
 
 // Real send path for the contact form (src/components/patterns/contact-form.tsx):
 // validates the payload server-side (never trust the client-side check alone),
@@ -57,6 +57,7 @@ export async function POST(request: Request) {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
+  const profile = await getProfile();
 
   const { error } = await resend.emails.send({
     from: process.env.CONTACT_FROM_EMAIL || "Portfolio Contact <onboarding@resend.dev>",

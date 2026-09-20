@@ -3,15 +3,17 @@ import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
-
-const RESUME_PATH = "/Muthukumar-D-Resume.pdf";
+import { getSiteSettings } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Resume",
   description: "Download or preview Muthukumar D's resume.",
 };
 
-export default function ResumePage() {
+export default async function ResumePage() {
+  const { resumeUrl } = await getSiteSettings();
+  const RESUME_PATH = resumeUrl || "/Muthukumar-D-Resume.pdf";
+
   return (
     <div className="grid-line-t flex flex-col gap-8 px-6 py-20 md:px-16 md:py-28">
       <div className="flex flex-wrap items-end justify-between gap-6">

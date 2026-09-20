@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { socialLinks } from "@/lib/content";
 import { Reveal } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
 
@@ -20,14 +19,13 @@ const FOOTER_LINKS = [
 
 export interface FooterProps {
   className?: string;
+  linkedinUrl?: string | null;
 }
 
-function Footer({ className }: FooterProps) {
-  const externalLinks = [
-    { label: "LinkedIn", href: socialLinks.linkedin },
-    { label: "Behance", href: socialLinks.behance },
-    { label: "Dribbble", href: socialLinks.dribbble },
-  ].filter((link): link is { label: string; href: string } => Boolean(link.href));
+function Footer({ className, linkedinUrl }: FooterProps) {
+  const externalLinks = [{ label: "LinkedIn", href: linkedinUrl }].filter(
+    (link): link is { label: string; href: string } => Boolean(link.href)
+  );
 
   return (
     <footer className={cn("grid-line-t bg-bg", className)}>

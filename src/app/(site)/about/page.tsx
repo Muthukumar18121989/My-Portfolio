@@ -8,14 +8,15 @@ import { AboutPortrait } from "@/components/patterns/about-portrait";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/section-reveal";
 import { WordReveal } from "@/components/motion/text-reveal";
 import {
-  profile,
-  stats,
-  experience,
-  skillGroups,
-  funFacts,
-  certifications,
-  education,
-} from "@/lib/content";
+  getProfile,
+  getStats,
+  getPhilosophy,
+  getCareerEntries,
+  getSkillGroups,
+  getFunFacts,
+  getCertifications,
+  getEducation,
+} from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "About",
@@ -24,7 +25,27 @@ export const metadata: Metadata = {
 
 const TOTAL_SECTIONS = "05";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [
+    profile,
+    stats,
+    philosophy,
+    careerEntries,
+    skillGroups,
+    funFacts,
+    certifications,
+    education,
+  ] = await Promise.all([
+    getProfile(),
+    getStats(),
+    getPhilosophy(),
+    getCareerEntries(),
+    getSkillGroups(),
+    getFunFacts(),
+    getCertifications(),
+    getEducation(),
+  ]);
+
   return (
     <div className="flex flex-col overflow-x-clip">
       <section className="grid-line-t grid gap-14 px-6 py-20 md:grid-cols-[1.1fr_0.9fr] md:items-center md:gap-16 md:px-16 md:py-28">
@@ -44,7 +65,7 @@ export default function AboutPage() {
           <Reveal variant="up" delay={0.4}>
             <div className="grid grid-cols-2 gap-x-8 gap-y-6">
               {stats.map((stat) => (
-                <div key={stat.label} className="flex flex-col gap-1">
+                <div key={stat.id} className="flex flex-col gap-1">
                   <span className="text-display-md text-fg">{stat.value}</span>
                   <span className="text-xs leading-snug text-fg-muted">{stat.label}</span>
                 </div>
@@ -60,7 +81,7 @@ export default function AboutPage() {
           </Reveal>
         </div>
         <Reveal variant="scale" delay={0.2}>
-          <AboutPortrait name={profile.name} />
+          <AboutPortrait name={profile.name} photoUrl={profile.photoUrl} />
         </Reveal>
       </section>
 
@@ -71,8 +92,8 @@ export default function AboutPage() {
         title="Design philosophy"
       >
         <StaggerGroup className="grid gap-px border border-border bg-border md:grid-cols-3">
-          {profile.philosophy.map((item) => (
-            <StaggerItem key={item.title} className="flex flex-col gap-3 bg-bg p-7">
+          {philosophy.map((item) => (
+            <StaggerItem key={item.id} className="flex flex-col gap-3 bg-bg p-7">
               <span className="text-meta text-accent">{item.title}</span>
               <p className="text-sm leading-relaxed text-fg-muted">{item.body}</p>
             </StaggerItem>
@@ -87,8 +108,14 @@ export default function AboutPage() {
         title="Professional journey"
       >
         <ol className="flex flex-col gap-8 border-l border-border">
-          {experience.map((entry) => (
-            <TimelineItem key={`${entry.company}-${entry.dateRange}`} {...entry} />
+          {careerEntries.map((entry) => (
+            <TimelineItem
+              key={entry.id}
+              role={entry.role}
+              company={entry.company}
+              dateRange={entry.dateRange}
+              achievements={entry.achievements}
+            />
           ))}
         </ol>
       </SectionBlock>
@@ -96,7 +123,7 @@ export default function AboutPage() {
       <SectionBlock index="03" total={TOTAL_SECTIONS} eyebrow="Toolkit" title="Skills & tools">
         <div className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
           {skillGroups.map((group, gi) => (
-            <Reveal key={group.label} variant="up" delay={gi * 0.06}>
+            <Reveal key={group.id} variant="up" delay={gi * 0.06}>
               <div className="flex flex-col gap-1">
                 <span className="text-meta mb-3 text-accent">{group.label}</span>
                 {group.items.map((item) => (
@@ -125,8 +152,8 @@ export default function AboutPage() {
               <span className="text-meta text-fg-muted">Certifications</span>
               <ul className="flex flex-col gap-2">
                 {certifications.map((cert) => (
-                  <li key={cert} className="text-sm text-fg-muted">
-                    {cert}
+                  <li key={cert.id} className="text-sm text-fg-muted">
+                    {cert.content}
                   </li>
                 ))}
               </ul>
@@ -151,10 +178,10 @@ export default function AboutPage() {
         <StaggerGroup className="flex flex-col">
           {funFacts.map((fact) => (
             <StaggerItem
-              key={fact}
+              key={fact.id}
               className="grid-line-t py-4 text-sm leading-relaxed text-fg-muted"
             >
-              {fact}
+              {fact.content}
             </StaggerItem>
           ))}
         </StaggerGroup>

@@ -22,6 +22,7 @@ export interface HeroProfile {
   yearsExperience: number;
   heroSummary: string;
   location: string;
+  photoUrl?: string | null;
 }
 
 export interface HeroProps {
@@ -67,7 +68,7 @@ function Hero({ profile }: HeroProps) {
         <Reveal variant="scale">
           <div className="relative size-20 overflow-hidden rounded-full border-2 border-border shadow-lg shadow-black/40 md:size-24">
             <Image
-              src="/images/profile-dark.webp"
+              src={profile.photoUrl || "/images/profile-dark.webp"}
               alt={profile.name}
               fill
               sizes="96px"
