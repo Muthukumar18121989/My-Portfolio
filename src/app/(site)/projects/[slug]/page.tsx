@@ -101,11 +101,13 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const HeroArt = HERO_ART[project.slug];
   const hasEnterpriseShowcase = Boolean(project.enterpriseShowcase?.length);
   const CustomCaseStudy = CUSTOM_CASE_STUDIES[project.slug];
-  const bodySections = hasEnterpriseShowcase
-    ? SECTION_ORDER.filter((key) => key !== "overview")
-    : CustomCaseStudy
-      ? (["overview", "problem", "myRole"] as const)
-      : SECTION_ORDER;
+  const bodySections = (
+    hasEnterpriseShowcase
+      ? SECTION_ORDER.filter((key) => key !== "overview")
+      : CustomCaseStudy
+        ? (["overview", "problem", "myRole"] as const)
+        : SECTION_ORDER
+  ).filter((key) => Boolean(project.sections?.[key]));
 
   const screenshotsGrid = (
     <div className="grid gap-10 md:grid-cols-2">

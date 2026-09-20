@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { requireAdmin } from "@/lib/supabase/auth";
 import { signOut } from "@/app/(admin)/admin/actions";
+import { AdminNav } from "@/components/admin/admin-nav";
 
 // Route group, not a URL segment — this wraps everything at /admin/* EXCEPT
 // /admin/login, which lives outside (dashboard) specifically so the
@@ -23,6 +24,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
           </button>
         </form>
       </header>
+      <AdminNav />
       <main className="flex-1 px-6 py-10 md:px-10">{children}</main>
     </div>
   );
